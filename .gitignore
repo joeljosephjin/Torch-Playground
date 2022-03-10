@@ -1,7 +1,3 @@
 .ipynb_checkpoints
 data/
 models/
-
-
-!models/models.py
-!data/data.py

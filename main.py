@@ -8,9 +8,19 @@ import torch.optim as optim
 
 from models.models import AVModel
 
+import wandb
+wandb.init(project="torch-cnn", entity="joeljosephjin")
+
+wandb.config = {
+  "batch_size": 4,
+  "learning_rate": 0.001,
+  "momentum": 0.9,
+  "epochs": 3
+}
+
 
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-batch_size = 4
+batch_size = wandb.config.batch_size # 4
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
@@ -21,12 +31,13 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 net = AVModel()
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+optimizer = optim.SGD(net.parameters(), lr=wandb.config.learning_rate, momentum=wandb.config.momentum) # 0.001, 0.9
 
 
-for epoch in range(3):  # loop over the dataset multiple times
+for epoch in range(wandb.config.epochs):  # loop over the dataset multiple times; 4
 
     running_loss = 0.0
+    running_acc = 0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
@@ -40,10 +51,18 @@ for epoch in range(3):  # loop over the dataset multiple times
         loss.backward()
         optimizer.step()
 
+        # calc accuracy
+        _, predicted = torch.max(outputs.data, 1)
+        correct = (predicted == labels).sum().item()
+        total = labels.size(0)
+        acc = correct / total
+
         # print statistics
+        wandb.log({'loss':loss.item(), 'accuracy':acc})
         running_loss += loss.item()
+        running_acc += acc
         if i % 2000 == 1999:    # print every 2000 mini-batches
-            print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}')
+            print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f} acc: {running_acc / 2000:.3f}')
             running_loss = 0.0
 
 print('Finished Training')
@@ -62,7 +81,9 @@ with torch.no_grad():
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
-print(f'Accuracy of the network on the 10000 test images: {100 * correct // total} %')
+test_accuracy = 100 * correct // total
+print(f'Accuracy of the network on the 10000 test images: {test_accuracy} %')
+wandb.run.summary["test_accuracy"] = test_accuracy
 
 
 # prepare to count predictions for each class

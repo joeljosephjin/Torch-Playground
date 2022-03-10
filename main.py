@@ -70,6 +70,7 @@ for epoch in range(args.epochs):  # loop over the dataset multiple times; 4
         if i % 2000 == 1999:    # print every 2000 mini-batches
             print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f} acc: {running_acc / 2000:.3f}')
             running_loss = 0.0
+            running_acc = 0.0
 
 print('Finished Training')
 

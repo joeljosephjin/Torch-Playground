@@ -23,6 +23,7 @@ args = parser.parse_args()
 
 wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 batch_size = args.batch_size # 4
@@ -33,7 +34,7 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle
 classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
 
-net = AVModel()
+net = AVModel().to(device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=args.momentum) # 0.001, 0.9
@@ -45,7 +46,7 @@ for epoch in range(args.epochs):  # loop over the dataset multiple times; 4
     running_acc = 0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs; data is a list of [inputs, labels]
-        inputs, labels = data
+        inputs, labels = data[0].to(device), data[1].to(device)
 
         # zero the parameter gradients
         optimizer.zero_grad()
@@ -78,9 +79,9 @@ total = 0
 # since we're not training, we don't need to calculate the gradients for our outputs
 with torch.no_grad():
     for data in testloader:
-        images, labels = data
+        inputs, labels = data[0].to(device), data[1].to(device)
         # calculate outputs by running images through the network
-        outputs = net(images)
+        outputs = net(inputs)
         # the class with the highest energy is what we choose as prediction
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)

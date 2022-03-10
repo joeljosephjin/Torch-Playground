@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--batch-size', type=int, default=4)
 parser.add_argument('--learning-rate', type=float, default=0.001)
 parser.add_argument('--momentum', type=float, default=0.9)
-parser.add_argument('--epochs', type=float, default=3)
+parser.add_argument('--epochs', type=int, default=3)
 args = parser.parse_args()
 
 
@@ -26,7 +26,8 @@ wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-batch_size = args.batch_size # 4
+batch_size = args.batch_size # 4 
+
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
 testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)

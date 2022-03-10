@@ -101,8 +101,8 @@ total_pred = {classname: 0 for classname in classes}
 # again no gradients needed
 with torch.no_grad():
     for data in testloader:
-        images, labels = data
-        outputs = net(images)
+        inputs, labels = data[0].to(device), data[1].to(device)
+        outputs = net(inputs)
         _, predictions = torch.max(outputs, 1)
         # collect the correct predictions for each class
         for label, prediction in zip(labels, predictions):

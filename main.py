@@ -19,16 +19,16 @@ parser.add_argument('--batch-size', type=int, default=4)
 parser.add_argument('--learning-rate', type=float, default=0.001)
 parser.add_argument('--momentum', type=float, default=0.9)
 parser.add_argument('--epochs', type=int, default=3)
+parser.add_argument('--no-wandb', action='store_true')
 args = parser.parse_args()
 
-
-wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
+if not args.no_wandb:
+    wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # load cifar-10
 trainloader, testloader, classes = load_cifar_10(args.batch_size)
-
 net = AVModel().to(device)
 
 criterion = nn.CrossEntropyLoss()
@@ -59,7 +59,8 @@ for epoch in range(args.epochs):  # loop over the dataset multiple times; 4
         acc = correct / total
 
         # print statistics
-        wandb.log({'loss':loss.item(), 'accuracy':acc})
+        if not args.no_wandb:
+            wandb.log({'loss':loss.item(), 'accuracy':acc})
         running_loss += loss.item()
         running_acc += acc
         if i % 2000 == 1999:    # print every 2000 mini-batches
@@ -85,7 +86,8 @@ with torch.no_grad():
 
 test_accuracy = 100 * correct // total
 print(f'Accuracy of the network on the 10000 test images: {test_accuracy} %')
-wandb.run.summary["test_accuracy"] = test_accuracy
+if not args.no_wandb:
+    wandb.run.summary["test_accuracy"] = test_accuracy
 
 
 # prepare to count predictions for each class

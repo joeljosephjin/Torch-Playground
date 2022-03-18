@@ -51,7 +51,7 @@ class ClassifierPipeline():
                     wandb.log({'loss':loss.item(), 'accuracy':acc})
                 running_loss += loss.item()
                 running_acc += acc
-                if i % 2000 == 1999:    # print every 2000 mini-batches
+                if i % 500 == 499:    # print every 2000 mini-batches
                     print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f} acc: {running_acc / 2000:.3f}')
                     running_loss = 0.0
                     running_acc = 0.0

@@ -1,3 +1,4 @@
+# python main.py --no-wandb --epochs 5 --learning-rate 0.01 --perc-size 0.05
 import torchvision.transforms as transforms
 
 import torch.nn as nn
@@ -19,7 +20,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--batch-size', type=int, default=4)
 parser.add_argument('--learning-rate', type=float, default=0.001)
 parser.add_argument('--momentum', type=float, default=0.9)
-parser.add_argument('--perc-size', type=float, default=0.05)
+parser.add_argument('--perc-size', type=float, default=1)
 parser.add_argument('--epochs', type=int, default=1)
 parser.add_argument('--no-wandb', action='store_true')
 args = parser.parse_args()

@@ -29,6 +29,7 @@ args = parser.parse_args()
 print('Loading Dataset..')
 datatuple = load_cifar_10(batch_size=args.batch_size, perc_size=args.perc_size)
 print('Loading Model..')
+
 # pipeline1 = ClassifierPipeline(args, AVModel, datatuple)
 pipeline1 = ClassifierPipeline(args, ShuffleNet, datatuple)
 # pipeline1 = ClassifierPipeline(args, SimpleModel, datatuple)

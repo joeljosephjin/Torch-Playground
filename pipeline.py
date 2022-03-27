@@ -14,7 +14,10 @@ class ClassifierPipeline():
             wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
 
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        # self.device = torch.device('cpu')
 
+        torch.autograd.set_detect_anomaly(True)
+        
         # load cifar-10
         self.trainloader, self.testloader, self.classes = datatuple
         self.net = net().to(self.device)

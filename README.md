@@ -30,7 +30,7 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 
 ### future work
 
-- remove config.py
-- add option to select model
+- remove config.py (done)
+- add option to select model (done)
 - add mnist as a dataset option
 - use config for selecting the model

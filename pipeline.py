@@ -3,7 +3,6 @@ import torch
 from torch import nn, optim
 
 
-
 class ClassifierPipeline():
 
     def __init__(self, args=None, net=None, datatuple=None):

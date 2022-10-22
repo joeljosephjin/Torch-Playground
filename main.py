@@ -26,16 +26,17 @@ parser.add_argument('--no-wandb', action='store_true')
 args = parser.parse_args()
 
 
-print('Loading Dataset..')
-datatuple = load_cifar_10(batch_size=args.batch_size, perc_size=args.perc_size)
-print('Loading Model..')
+if __name__=="__main__":
+    print('Loading Dataset..')
+    datatuple = load_cifar_10(batch_size=args.batch_size, perc_size=args.perc_size)
+    print('Loading Model..')
 
-# pipeline1 = ClassifierPipeline(args, AVModel, datatuple)
-pipeline1 = ClassifierPipeline(args, ShuffleNet, datatuple)
-# pipeline1 = ClassifierPipeline(args, SimpleModel, datatuple)
+    pipeline1 = ClassifierPipeline(args, AVModel, datatuple)
+    # pipeline1 = ClassifierPipeline(args, ShuffleNet, datatuple)
+    # pipeline1 = ClassifierPipeline(args, SimpleModel, datatuple)
 
-print('Starting Training..')
-s = time.time()
-pipeline1.train(epochs=args.epochs)
-print(f'{time.time()-s} taken for training,\n Starting Testing..')
-pipeline1.test()
+    print('Starting Training..')
+    s = time.time()
+    pipeline1.train(epochs=args.epochs)
+    print(f'{time.time()-s} taken for training,\n Starting Testing..')
+    pipeline1.test()

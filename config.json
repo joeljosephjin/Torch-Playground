@@ -1,0 +1,6 @@
+{
+"test":true,
+"wandb":false,
+"lr":0.01,
+"gpu":true
+}

@@ -1,4 +1,4 @@
-# General Library for Experimenting Computer Vision
+# general library for experimenting Computer Vision
 
 Prior libraries for image classification, hyperparameter tuning, report creation, etc..]
 

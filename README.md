@@ -28,3 +28,7 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - train.py (will contain training loop function)
 - test.py (will contain testing loop function)
 
+### future work
+
+- add mnist as a dataset option
+- use config for selecting the model

@@ -12,7 +12,8 @@ class ClassifierPipeline():
         if not self.args.no_wandb:
             wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
 
-        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # if self.device=
         # self.device = torch.device('cpu')
 
         torch.autograd.set_detect_anomaly(True)
@@ -25,11 +26,12 @@ class ClassifierPipeline():
         self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum) # 0.001, 0.9
 
     def train(self, epochs=3):
+        logs_interval = 100
         for epoch in range(self.args.epochs):  # loop over the dataset multiple times; 4
 
             running_loss = 0.0
             running_acc = 0.0
-            for i, data in enumerate(self.trainloader, 0):
+            for i, data in enumerate(self.trainloader):
                 # get the inputs; data is a list of [inputs, labels]
                 inputs, labels = data[0].to(self.device), data[1].to(self.device)
 
@@ -39,6 +41,7 @@ class ClassifierPipeline():
                 # forward + backward + optimize
                 outputs = self.net(inputs)
                 loss = self.criterion(outputs, labels)
+                # import pdb; pdb.set_trace()
                 loss.backward()
                 self.optimizer.step()
 
@@ -53,8 +56,8 @@ class ClassifierPipeline():
                     wandb.log({'loss':loss.item(), 'accuracy':acc})
                 running_loss += loss.item()
                 running_acc += acc
-                if i % 500 == 499:    # print every 2000 mini-batches
-                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f} acc: {running_acc / 2000:.3f}')
+                if i % logs_interval == 0 and i != 0:    # print every 2000 mini-batches
+                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / logs_interval:.3f} acc: {running_acc / logs_interval:.3f}')
                     running_loss = 0.0
                     running_acc = 0.0
 

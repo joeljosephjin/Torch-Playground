@@ -20,7 +20,7 @@ import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch-size', type=int, default=4)
-parser.add_argument('--learning-rate', type=float, default=0.001)
+parser.add_argument('--learning-rate', type=float, default=0.01)
 parser.add_argument('--momentum', type=float, default=0.9)
 parser.add_argument('--perc-size', type=float, default=1)
 parser.add_argument('--epochs', type=int, default=1)
@@ -29,8 +29,8 @@ args = parser.parse_args()
 
 
 if __name__=="__main__":
-    if config['test']:
-        args.epochs = 2
+    # if config['test']:
+    #     args.epochs = 2
     if not config['wandb']:
         args.no_wandb = True
     print('Loading Dataset..')

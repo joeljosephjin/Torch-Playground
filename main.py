@@ -1,6 +1,4 @@
 # python main.py --no-wandb --epochs 5 --learning-rate 0.01 --perc-size 0.05
-from config import config
-
 import torchvision.transforms as transforms
 
 import torch.nn as nn
@@ -29,10 +27,6 @@ args = parser.parse_args()
 
 
 if __name__=="__main__":
-    # if config['test']:
-    #     args.epochs = 2
-    if not config['wandb']:
-        args.no_wandb = True
     print('Loading Dataset..')
     datatuple = load_cifar_10(batch_size=args.batch_size, perc_size=args.perc_size)
     print('Loading Model..')

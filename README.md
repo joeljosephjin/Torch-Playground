@@ -32,5 +32,5 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 
 - remove config.py (done)
 - add option to select model (done)
-- add mnist as a dataset option
-- use config for selecting the model
+- add mnist as a dataset option (done)
+- use config for selecting the model (done)

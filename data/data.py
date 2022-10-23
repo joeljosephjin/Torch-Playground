@@ -21,3 +21,21 @@ def load_cifar_10(batch_size=4, perc_size=1):
 
     return trainloader, testloader, classes
 
+def load_mnist(batch_size=128, perc_size=1):
+    
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+        ])
+    
+    dataset1 = torchvision.datasets.MNIST('../data', train=True, download=True,
+                       transform=transform)
+    dataset2 = torchvision.datasets.MNIST('../data', train=False,
+                       transform=transform)
+    
+    trainloader = torch.utils.data.DataLoader(dataset1, batch_size=batch_size, shuffle=True, num_workers=2)
+    testloader = torch.utils.data.DataLoader(dataset2, batch_size=batch_size, shuffle=False, num_workers=2)
+    
+    classes = [str(i) for i in range(10)]
+    
+    return trainloader, testloader, classes

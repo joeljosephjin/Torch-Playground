@@ -9,9 +9,13 @@ Dataloader: should be of same specific format as loading inbuilt mnist or cifar
 ### fundamental questions?
 
 1.Does hyperparameter tuning on small portion of the dataset generalize to the big dataset?
+
 2.What optimizers are useful for which datasets? Does one have more stability than other?
+
 3.Benefits of fine-tuning on pre-trained models
+
 4.Reproduce results of research papers and do ablation studies on them.
+
 5.try on new research datasets
 
 ### prior work

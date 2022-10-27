@@ -60,10 +60,16 @@ class ClassifierPipeline():
                     print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / logs_interval:.3f} acc: {running_acc / logs_interval:.3f}')
                     running_loss = 0.0
                     running_acc = 0.0
+                
+            if epoch % 3:
+                self.test()
 
         print('Finished Training')
 
     def test(self):
+        
+        # REMOVE THIS | ONLY FOR TEST
+        # self.net.load_state_dict(torch.load('../efficient_densenet_pytorch/save/model.dat'))
 
         correct = 0
         total = 0

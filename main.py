@@ -4,6 +4,7 @@ from torch import nn, optim
 # python main.py --no-wandb --epochs 5 --learning-rate 0.01 --perc-size 0.05
 import torchvision.transforms as transforms
 import importlib
+from time import time
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -14,10 +15,6 @@ import argparse
 from models.models import *
 from models.shufflenet import ShuffleNet
 from data.data import *
-
-# from pipeline import ClassifierPipeline
-
-import time
 
 
 parser = argparse.ArgumentParser()
@@ -62,6 +59,7 @@ class ClassifierPipeline():
         self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum) # 0.001, 0.9
 
     def train(self, epochs=3):
+        self.start_time = time()
         logs_interval = 100
         for epoch in range(self.args.epochs):  # loop over the dataset multiple times; 4
 
@@ -80,7 +78,6 @@ class ClassifierPipeline():
                 # import pdb; pdb.set_trace()
                 loss.backward()
                 self.optimizer.step()
-
                 # calc accuracy
                 _, predicted = torch.max(outputs.data, 1)
                 correct = (predicted == labels).sum().item()
@@ -93,7 +90,7 @@ class ClassifierPipeline():
                 running_loss += loss.item()
                 running_acc += acc
                 if i % logs_interval == 0 and i != 0:    # print every 2000 mini-batches
-                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / logs_interval:.3f} acc: {running_acc / logs_interval:.3f}')
+                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / logs_interval:.3f} acc: {running_acc / logs_interval:.3f} time: {(time() - self.start_time) / 60:.2f} minutes')
                     running_loss = 0.0
                     running_acc = 0.0
                 
@@ -182,7 +179,7 @@ if __name__=="__main__":
     # pipeline1 = ClassifierPipeline(args, SimpleModel, datatuple)
 
     print('Starting Training..')
-    s = time.time()
+    s = time()
     pipeline1.train(epochs=args.epochs)
     print(f'{time.time()-s} taken for training...')
     # pipeline1.test()

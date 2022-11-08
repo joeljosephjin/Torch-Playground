@@ -48,4 +48,4 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - add save and load feature (done)
 - add resume from checkpoint (done)
 - fix the optimizer load bug (done)
-- add time as a log (in progress)
+- add time as a log (done)

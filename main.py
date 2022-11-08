@@ -27,10 +27,10 @@ parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or
 parser.add_argument('--learning-rate', type=float, default=0.01)
 parser.add_argument('--momentum', type=float, default=0.9)
 parser.add_argument('--perc-size', type=float, default=1)
-parser.add_argument('--epochs', type=int, default=1)
+parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--log-interval', type=int, default=5)
-parser.add_argument('--save-interval', type=int, default=5)
-parser.add_argument('--no-wandb', action='store_true')
+parser.add_argument('--save-interval', type=int, default=6)
+parser.add_argument('--use-wandb', action='store_true')
 parser.add_argument('--resume-from-saved', type=str, default=None, help="name of the exp to load from")
 parser.add_argument('--save-as', type=str, default='', help="a name for the model save file")
 args = parser.parse_args()
@@ -41,7 +41,7 @@ class ClassifierPipeline():
 
         self.args = args
         
-        if not self.args.no_wandb:
+        if self.args.use_wandb:
             wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -88,7 +88,7 @@ class ClassifierPipeline():
                 acc = correct / total
 
                 # print statistics
-                if not self.args.no_wandb:
+                if self.args.use_wandb:
                     wandb.log({'loss':loss.item(), 'accuracy':acc})
                 running_loss += loss.item()
                 running_acc += acc
@@ -102,7 +102,9 @@ class ClassifierPipeline():
             if epoch % self.args.save_interval:
                 self.save_model(model=self.net, filename=self.args.model+self.args.save_as)
                 self.net = self.load_model(filename=self.args.model+self.args.save_as, modelname=self.args.model)
-
+                self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum)
+                self.net.train()
+                
         print('Finished Training')
 
     def test(self):
@@ -125,7 +127,7 @@ class ClassifierPipeline():
 
         test_accuracy = 100 * correct // total
         print(f'Accuracy of the network on the 10000 test images: {test_accuracy} %')
-        if not self.args.no_wandb:
+        if self.args.use_wandb:
             wandb.run.summary["test_accuracy"] = test_accuracy
 
 
@@ -161,7 +163,8 @@ class ClassifierPipeline():
         models_mod = importlib.import_module(f'models.models')
         model_class = getattr(models_mod, modelname)
         model = model_class()
-        model.load_state_dict(torch.load(path))
+        state_dict = torch.load(path)
+        model.load_state_dict(state_dict)
         model = model.to(self.device)
         print(f'Model loaded successfully from {path} ...')
         return model

@@ -12,3 +12,6 @@ python main.py --no-wandb --epochs 10 --batch-size 128 --learning-rate 0.01 --mo
 
 # 
 python main.py --no-wandb --epochs 100 --batch-size 128 --learning-rate 0.01 --model SimpleDLA --dataset cifar_10
+
+#
+python main.py --no-wandb --epochs 100 --batch-size 128 --learning-rate 0.01 --model SimpleDLA --dataset cifar_10 --save-as longexp --save-interval 6

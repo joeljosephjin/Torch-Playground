@@ -28,10 +28,10 @@ parser.add_argument('--learning-rate', type=float, default=0.01)
 parser.add_argument('--momentum', type=float, default=0.9)
 parser.add_argument('--perc-size', type=float, default=1)
 parser.add_argument('--epochs', type=int, default=1)
-parser.add_argument('--save-interval', type=int, default=3)
+parser.add_argument('--log-interval', type=int, default=5)
+parser.add_argument('--save-interval', type=int, default=5)
 parser.add_argument('--no-wandb', action='store_true')
-parser.add_argument('--resume-from-saved', action='store_false')
-parser.add_argument('--load-as', type=str, default='', help="a name for the model load file")
+parser.add_argument('--resume-from-saved', type=str, default=None, help="name of the exp to load from")
 parser.add_argument('--save-as', type=str, default='', help="a name for the model save file")
 args = parser.parse_args()
 
@@ -52,7 +52,11 @@ class ClassifierPipeline():
         
         # load cifar-10
         self.trainloader, self.testloader, self.classes = datatuple
-        self.net = net().to(self.device)
+        
+        if self.args.resume_from_saved:
+            self.net = self.load_model(filename=self.args.model+self.args.resume_from_saved, modelname=self.args.model)
+        else:
+            self.net = net().to(self.device)
 
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum) # 0.001, 0.9
@@ -93,11 +97,11 @@ class ClassifierPipeline():
                     running_loss = 0.0
                     running_acc = 0.0
                 
-            if epoch % 3:
+            if epoch % self.args.log_interval:
                 self.test()
             if epoch % self.args.save_interval:
                 self.save_model(model=self.net, filename=self.args.model+self.args.save_as)
-                self.net = self.load_model(filename=self.args.model, modelname=self.args.model+self.args.load_as)
+                self.net = self.load_model(filename=self.args.model+self.args.save_as, modelname=self.args.model)
 
         print('Finished Training')
 

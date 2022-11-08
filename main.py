@@ -3,6 +3,7 @@ import torch
 from torch import nn, optim
 # python main.py --no-wandb --epochs 5 --learning-rate 0.01 --perc-size 0.05
 import torchvision.transforms as transforms
+import importlib
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -27,7 +28,9 @@ parser.add_argument('--learning-rate', type=float, default=0.01)
 parser.add_argument('--momentum', type=float, default=0.9)
 parser.add_argument('--perc-size', type=float, default=1)
 parser.add_argument('--epochs', type=int, default=1)
+parser.add_argument('--save-interval', type=int, default=3)
 parser.add_argument('--no-wandb', action='store_true')
+parser.add_argument('--resume-from-saved', action='store_false')
 args = parser.parse_args()
 
 class ClassifierPipeline():
@@ -90,6 +93,9 @@ class ClassifierPipeline():
                 
             if epoch % 3:
                 self.test()
+            if epoch % self.args.save_interval:
+                self.save_model(self.net, self.args.model)
+                self.net = self.load_model(self.args.model, self.args.model)
 
         print('Finished Training')
 
@@ -138,6 +144,21 @@ class ClassifierPipeline():
         for classname, correct_count in correct_pred.items():
             accuracy = 100 * float(correct_count) / total_pred[classname]
             print(f'Accuracy for class: {classname:5s} is {accuracy:.1f} %')
+            
+    def save_model(self, model, filename):
+        path = f'save/{filename}.pth'
+        torch.save(model.state_dict(), path)
+        print(f'Model saved as {path} ...')
+        
+    def load_model(self, filename, modelname):
+        path = f'save/{filename}.pth'
+        models_mod = importlib.import_module(f'models.models')
+        model_class = getattr(models_mod, modelname)
+        model = model_class()
+        model.load_state_dict(torch.load(path))
+        model = model.to(self.device)
+        print(f'Model loaded successfully from {path} ...')
+        return model
 
             
 if __name__=="__main__":
@@ -154,5 +175,5 @@ if __name__=="__main__":
     print('Starting Training..')
     s = time.time()
     pipeline1.train(epochs=args.epochs)
-    print(f'{time.time()-s} taken for training,\n Starting Testing..')
-    pipeline1.test()
+    print(f'{time.time()-s} taken for training...')
+    # pipeline1.test()

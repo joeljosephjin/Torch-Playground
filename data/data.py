@@ -5,14 +5,14 @@ import torch.utils.data as data_utils
 
 
 def load_cifar_10(batch_size=4, perc_size=1):
-    # mean = [0.49139968, 0.48215841, 0.44653091]
-    mean = [0.5, 0.5, 0.5]
-    # stdv = [0.24703223, 0.24348513, 0.26158784]
-    stdv = [0.5, 0.5, 0.5]
+    mean = [0.49139968, 0.48215841, 0.44653091]
+    # mean = [0.5, 0.5, 0.5]
+    stdv = [0.24703223, 0.24348513, 0.26158784]
+    # stdv = [0.5, 0.5, 0.5]
     train_transform = transforms.Compose([
-        transforms.RandomRotation(10),
-        transforms.RandomAffine(0, shear=10, scale=(0.8,1.2)),
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+        # transforms.RandomRotation(10),
+        # transforms.RandomAffine(0, shear=10, scale=(0.8,1.2)),
+        # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),

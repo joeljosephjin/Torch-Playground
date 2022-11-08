@@ -3,6 +3,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from models.densenet import DenseNet
+from models.dla_simple import SimpleDLA
 
 
 class ShuffleNetModel(nn.Module):

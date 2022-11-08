@@ -45,3 +45,4 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - investigate what makes densenet better and how i can find this phenomenon with less summative running time (to do)
 - can another regular model with comparable number of parameters give same effect? How much is the effect of their special system (to do)
 - remove usage pipeline.py file (done)
+- add save and load feature (in progress)

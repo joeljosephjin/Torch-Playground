@@ -31,6 +31,8 @@ parser.add_argument('--epochs', type=int, default=1)
 parser.add_argument('--save-interval', type=int, default=3)
 parser.add_argument('--no-wandb', action='store_true')
 parser.add_argument('--resume-from-saved', action='store_false')
+parser.add_argument('--load-as', type=str, default='', help="a name for the model load file")
+parser.add_argument('--save-as', type=str, default='', help="a name for the model save file")
 args = parser.parse_args()
 
 class ClassifierPipeline():
@@ -94,8 +96,8 @@ class ClassifierPipeline():
             if epoch % 3:
                 self.test()
             if epoch % self.args.save_interval:
-                self.save_model(self.net, self.args.model)
-                self.net = self.load_model(self.args.model, self.args.model)
+                self.save_model(model=self.net, filename=self.args.model+self.args.save_as)
+                self.net = self.load_model(filename=self.args.model, modelname=self.args.model+self.args.load_as)
 
         print('Finished Training')
 

@@ -23,6 +23,7 @@ parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleMode
 parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
 parser.add_argument('--learning-rate', type=float, default=0.01)
 parser.add_argument('--momentum', type=float, default=0.9)
+parser.add_argument('--weight_decay', type=float, default=5e-4)
 parser.add_argument('--perc-size', type=float, default=1)
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--log-interval', type=int, default=5)
@@ -56,7 +57,8 @@ class ClassifierPipeline():
             self.net = net().to(self.device)
 
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum) # 0.001, 0.9
+        self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum, weight_decay=self.args.weight_decay) # 0.001, 0.9
+        self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=200)
 
     def train(self, epochs=3):
         self.start_time = time()
@@ -98,10 +100,12 @@ class ClassifierPipeline():
                 self.test()
             if epoch % self.args.save_interval:
                 self.save_model(model=self.net, filename=self.args.model+self.args.save_as)
-                self.net = self.load_model(filename=self.args.model+self.args.save_as, modelname=self.args.model)
-                self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum)
-                self.net.train()
-                
+                # self.net = self.load_model(filename=self.args.model+self.args.save_as, modelname=self.args.model)
+                # self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum)
+                # self.net.train()
+            
+            self.scheduler.step()
+            
         print('Finished Training')
 
     def test(self):
@@ -161,6 +165,10 @@ class ClassifierPipeline():
         model_class = getattr(models_mod, modelname)
         model = model_class()
         state_dict = torch.load(path)
+        
+        # state_dict = state_dict['net']
+        # model = torch.nn.DataParallel(model)
+        
         model.load_state_dict(state_dict)
         model = model.to(self.device)
         print(f'Model loaded successfully from {path} ...')
@@ -173,13 +181,10 @@ if __name__=="__main__":
     datatuple = load_dataset_fn(batch_size=args.batch_size, perc_size=args.perc_size)
     print('Loading Model..')
 
-    # pipeline1 = ClassifierPipeline(args, AVModel, datatuple)
     pipeline1 = ClassifierPipeline(args, eval(args.model), datatuple)
-    # pipeline1 = ClassifierPipeline(args, ShuffleNet, datatuple)
-    # pipeline1 = ClassifierPipeline(args, SimpleModel, datatuple)
 
     print('Starting Training..')
     s = time()
     pipeline1.train(epochs=args.epochs)
-    print(f'{time.time()-s} taken for training...')
+    print(f'{time()-s} taken for training...')
     # pipeline1.test()

@@ -29,7 +29,7 @@ def load_cifar_10(batch_size=4, perc_size=1):
 
     testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=test_transform)
     testset = data_utils.Subset(testset, torch.arange(int(testset.data.shape[0]*perc_size)))
-    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
     print('testloader.data.shape:', testloader.dataset.dataset)
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 

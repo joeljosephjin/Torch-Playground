@@ -1,7 +1,6 @@
 import wandb
 import torch
 from torch import nn, optim
-# python main.py --no-wandb --epochs 5 --learning-rate 0.01 --perc-size 0.05
 import torchvision.transforms as transforms
 import importlib
 from time import time
@@ -65,8 +64,8 @@ class ClassifierPipeline():
         logs_interval = 100
         for epoch in range(self.args.epochs):  # loop over the dataset multiple times; 4
 
-            running_loss = 0.0
-            running_acc = 0.0
+            running_loss = []
+            running_acc = []
             for i, data in enumerate(self.trainloader):
                 # get the inputs; data is a list of [inputs, labels]
                 inputs, labels = data[0].to(self.device), data[1].to(self.device)
@@ -77,7 +76,6 @@ class ClassifierPipeline():
                 # forward + backward + optimize
                 outputs = self.net(inputs)
                 loss = self.criterion(outputs, labels)
-                # import pdb; pdb.set_trace()
                 loss.backward()
                 self.optimizer.step()
                 # calc accuracy
@@ -88,17 +86,17 @@ class ClassifierPipeline():
 
                 # print statistics
                 if self.args.use_wandb:
-                    wandb.log({'loss':loss.item(), 'accuracy':acc})
-                running_loss += loss.item()
-                running_acc += acc
-                if i % logs_interval == 0 and i != 0:    # print every 2000 mini-batches
-                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / logs_interval:.3f} acc: {running_acc / logs_interval:.3f} time: {(time() - self.start_time) / 60:.2f} minutes')
-                    running_loss = 0.0
-                    running_acc = 0.0
+                    wandb.log({'loss':loss.item(), 'train_acc':acc})
+                running_loss.append(loss.item())
+                running_acc.append(acc)
+                if i % logs_interval == 0:# and i != 0:    # print every 2000 mini-batches
+                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {sum(running_loss) / len(running_loss):.3f} acc: {sum(running_acc) / len(running_loss):.3f} time: {(time() - self.start_time) / 60:.2f} minutes')
+                    running_loss = []
+                    running_acc = []
                 
-            if epoch % self.args.log_interval:
+            if epoch % self.args.log_interval == 0:
                 self.test()
-            if epoch % self.args.save_interval:
+            if epoch % self.args.save_interval == 0:
                 self.save_model(model=self.net, filename=self.args.model+self.args.save_as)
                 # self.net = self.load_model(filename=self.args.model+self.args.save_as, modelname=self.args.model)
                 # self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum)
@@ -129,7 +127,8 @@ class ClassifierPipeline():
         test_accuracy = 100 * correct // total
         print(f'Accuracy of the network on the 10000 test images: {test_accuracy} %')
         if self.args.use_wandb:
-            wandb.run.summary["test_accuracy"] = test_accuracy
+            # wandb.run.summary["test_accuracy"] = test_accuracy
+            wandb.log({'valid_acc': test_accuracy})
 
 
         # prepare to count predictions for each class

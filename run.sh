@@ -7,6 +7,9 @@ python main.py --epochs 100 --batch-size 32 --learning-rate 0.001 --model AVMode
 #
 python main.py --epochs 100 --batch-size 32 --learning-rate 0.001 --model AVModel --dataset cifar_10 --save-as longexp2 --resume-from-saved longexp
 
+#
+python main.py --epochs 200 --batch-size 640 --learning-rate 0.1 --model AVModel --dataset cifar_10 --save-as longexp | tee save/AVModellongexp.txt
+
 # cifar 60%
 python main.py --epochs 10 --batch-size 128 --learning-rate 0.01 --model SimpleModel --dataset cifar_10
 
@@ -26,4 +29,4 @@ python main.py --epochs 100 --batch-size 128 --learning-rate 0.01 --model Simple
 python main.py --epochs 100 --batch-size 16 --learning-rate 0.001 --model SimpleDLA --dataset cifar_10 --save-as longexp2 --resume-from-saved longexp
 
 # 93% - 7 hours
-python main.py --epochs 200 --batch-size 128 --learning-rate 0.1 --model SimpleDLA --dataset cifar_10 --save-as longexp
+python main.py --epochs 200 --batch-size 128 --learning-rate 0.1 --model SimpleDLA --dataset cifar_10 --save-as longexp | tee save/SimpleDLAlongexp.txt

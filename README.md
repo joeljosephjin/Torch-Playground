@@ -50,3 +50,4 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - fix the optimizer load bug (done)
 - add time as a log (done)
 - replicate another repo and its 93% accuracy (done)
+- start using wandb to record and compare model performances (done)

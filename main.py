@@ -14,9 +14,11 @@ import argparse
 from models.models import *
 from models.shufflenet import ShuffleNet
 from data.data import *
+from utils import set_seed
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--seed', type=int, default=42)
 parser.add_argument('--batch-size', type=int, default=4)
 parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleModel or AVModel,..")
 parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
@@ -31,6 +33,8 @@ parser.add_argument('--use-wandb', action='store_true')
 parser.add_argument('--resume-from-saved', type=str, default=None, help="name of the exp to load from")
 parser.add_argument('--save-as', type=str, default='', help="a name for the model save file")
 args = parser.parse_args()
+
+set_seed(args.seed)
 
 class ClassifierPipeline():
 
@@ -107,10 +111,6 @@ class ClassifierPipeline():
         print('Finished Training')
 
     def test(self):
-        
-        # REMOVE THIS | ONLY FOR TEST
-        # self.net.load_state_dict(torch.load('../efficient_densenet_pytorch/save/model.dat'))
-
         correct = 0
         total = 0
         # since we're not training, we don't need to calculate the gradients for our outputs
@@ -180,7 +180,7 @@ if __name__=="__main__":
     datatuple = load_dataset_fn(batch_size=args.batch_size, perc_size=args.perc_size)
     print('Loading Model..')
 
-    pipeline1 = ClassifierPipeline(args, eval(args.model), datatuple)
+    pipeline1 = ClassifierPipeline(args=args, net=eval(args.model), datatuple=datatuple)
 
     print('Starting Training..')
     s = time()

@@ -24,7 +24,7 @@ parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleMode
 parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
 parser.add_argument('--learning-rate', type=float, default=0.01)
 parser.add_argument('--momentum', type=float, default=0.9)
-parser.add_argument('--weight_decay', type=float, default=5e-4)
+parser.add_argument('--weight-decay', type=float, default=5e-4)
 parser.add_argument('--perc-size', type=float, default=1)
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--log-interval', type=int, default=5)

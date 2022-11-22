@@ -41,4 +41,4 @@ python main.py --epochs 100 --batch-size 16 --learning-rate 0.001 --model Simple
 python main.py --epochs 200 --batch-size 128 --learning-rate 0.1 --model SimpleDLA --dataset cifar_10 --save-as longexp | tee save/SimpleDLAlongexp.txt
 
 # siamese
-python main-siamese.py --epochs 600 --batch-size 2048
+python main-siamese.py --epochs 500 --batch-size 4096 --learning-rate 0.07 --weight-decay 5e-3

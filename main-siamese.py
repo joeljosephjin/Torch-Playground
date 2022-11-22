@@ -14,7 +14,7 @@ parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleMode
 parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
 parser.add_argument('--learning-rate', type=float, default=0.005)
 parser.add_argument('--momentum', type=float, default=0.9)
-parser.add_argument('--weight_decay', type=float, default=5e-4)
+parser.add_argument('--weight-decay', type=float, default=5e-4)
 parser.add_argument('--perc-size', type=float, default=1)
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--log-interval', type=int, default=5)
@@ -54,9 +54,11 @@ class SiameseModel(nn.Module):
     
     def __init__(self):
         super(SiameseModel, self).__init__()
-        self.HiddenLayer_1 = nn.Linear(SHAPE[0][0], SHAPE[0][1])
-        self.HiddenLayer_2 = nn.Linear(SHAPE[1][0], SHAPE[1][1])
-        self.OutputLayer = nn.Linear(SHAPE[2][0], SHAPE[2][1])
+        image_size = 28*28
+        embed_size = 5 # 2
+        self.HiddenLayer_1 = nn.Linear(image_size, 1024)
+        self.HiddenLayer_2 = nn.Linear(1024, 1024)
+        self.OutputLayer = nn.Linear(1024, embed_size)
         
     def forward_once(self, X):
         output = nn.functional.relu(self.HiddenLayer_1(X))

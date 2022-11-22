@@ -3,14 +3,15 @@ import argparse
 from models.models import *
 from data.data import *
 import os
+import numpy as np
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--seed', type=int, default=42)
-parser.add_argument('--batch-size', type=int, default=4)
+parser.add_argument('--batch-size', type=int, default=512)
 parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleModel or AVModel,..")
 parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
-parser.add_argument('--learning-rate', type=float, default=0.01)
+parser.add_argument('--learning-rate', type=float, default=0.005)
 parser.add_argument('--momentum', type=float, default=0.9)
 parser.add_argument('--weight_decay', type=float, default=5e-4)
 parser.add_argument('--perc-size', type=float, default=1)
@@ -70,17 +71,14 @@ class SiameseModel(nn.Module):
 class SiamesePipeline(ClassifierPipeline):
     def __init__(self, args=None, net=None, datatuple=None):
         super(SiamesePipeline, self).__init__(args=args, net=net, datatuple=datatuple)
+        self.args=args
         
     def get_contrast_loss(self, out_1, out_2, Y):
         margin = 5.0
         euclidean_distance = nn.functional.pairwise_distance(out_1, out_2)
         loss_contrastive = torch.mean((Y) * torch.pow(euclidean_distance, 2) +
                                       (1 - Y) * torch.pow(torch.clamp(margin - euclidean_distance, min=0.0), 2))
-        return loss_contrastive
-        
-    def demo(self):
-        
-        print('run success...')
+        return loss_contrastive, euclidean_distance
         
     def generate_batch(self, dataloader):
         train_iter = iter(dataloader)
@@ -101,18 +99,19 @@ class SiamesePipeline(ClassifierPipeline):
     
     def train(self):
         epochs=10
-        for epoch in range(epochs):
+        for epoch in range(self.args.epochs):
             input_1, input_2, out = self.generate_trainbatch()
             X_1 = torch.Tensor(input_1).float().to(self.device)
             X_2 = torch.Tensor(input_2).float().to(self.device)
             Y = torch.Tensor(out).float().to(self.device)
             self.optimizer.zero_grad()
             out_1, out_2 = self.net.forward(X_1, X_2)
-            loss_val = self.get_contrast_loss(out_1, out_2, Y)
+            loss_val, _ = self.get_contrast_loss(out_1, out_2, Y)
             loss_val.backward()
             self.optimizer.step()
             if epoch % 2 == 0:
                 print('Epoch: %d Loss: %.3f' % (epoch, loss_val))
+                self.scheduler.step()
         
     def test(self):
         with torch.no_grad():
@@ -122,7 +121,10 @@ class SiamesePipeline(ClassifierPipeline):
             Y = torch.Tensor(out).float().to(self.device)
             self.optimizer.zero_grad()
             out_1, out_2 = self.net.forward(X_1, X_2)
-            loss_val = self.get_contrast_loss(out_1, out_2, Y)
+            loss_val, eucl_dist = self.get_contrast_loss(out_1, out_2, Y)
+            print('distance of one-s:', eucl_dist[Y.nonzero()[:10]])
+            print('distance of zero-eds:', eucl_dist[np.where(Y.cpu().numpy()==0)[0][:10]])
+            # import pdb; pdb.set_trace()
             print('Loss: %.3f' % (loss_val))
         
 if __name__ == "__main__":
@@ -131,4 +133,3 @@ if __name__ == "__main__":
     pipeline = SiamesePipeline(args=args, net=net, datatuple=datatuple)
     pipeline.train()
     pipeline.test()
-    pipeline.demo()

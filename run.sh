@@ -39,3 +39,6 @@ python main.py --epochs 100 --batch-size 16 --learning-rate 0.001 --model Simple
 
 # 93% - 7 hours
 python main.py --epochs 200 --batch-size 128 --learning-rate 0.1 --model SimpleDLA --dataset cifar_10 --save-as longexp | tee save/SimpleDLAlongexp.txt
+
+# siamese
+python main-siamese.py --epochs 600 --batch-size 2048

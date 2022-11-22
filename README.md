@@ -54,4 +54,4 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - save models to wandb (to do)
 - add the use of random seeds (done)
 - try add siamese classification experiments also (done)
-- add test accuracy setup in siamese experiment (in progress)
+- add test accuracy setup in siamese experiment (done)

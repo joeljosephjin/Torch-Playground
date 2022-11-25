@@ -54,12 +54,12 @@ def load_mnist(batch_size=128, perc_size=1):
     
     return trainloader, testloader, classes
 
-def subset_dataset(dataset, test_classes):
+def subset_dataset(dataset, test_classes, train_classes):
     """
     exclude the test_classes to create trainloader
     """
     test_idx = sum(dataset.targets==i for i in test_classes).bool().nonzero().flatten()
-    train_idx = sum(dataset.targets!=i for i in test_classes).bool().nonzero().flatten()
+    train_idx = sum(dataset.targets==i for i in train_classes).bool().nonzero().flatten()
     train_subset = torch.utils.data.Subset(dataset, train_idx)
     test_subset = torch.utils.data.Subset(dataset, test_idx)
     return train_subset, test_subset
@@ -70,7 +70,7 @@ def load_fewshot_mnist(batch_size=128, perc_size=1, test_classes=[0, 1, 2]):
     Segregate into two sets on the basis of select classes
     """
     
-    classes = [str(i) for i in range(10)] # 0, 1, ... , 10
+    classes = [i for i in range(10)] # 0, 1, ... , 10
     
     train_classes = [clas for clas in classes if clas not in test_classes]
     
@@ -84,8 +84,8 @@ def load_fewshot_mnist(batch_size=128, perc_size=1, test_classes=[0, 1, 2]):
     dataset2 = torchvision.datasets.MNIST('../data', train=False,
                        transform=transform)
     
-    dataset1_train, dataset1_test = subset_dataset(dataset1, test_classes)
-    dataset2_train, dataset2_test = subset_dataset(dataset2, test_classes)
+    dataset1_train, dataset1_test = subset_dataset(dataset1, test_classes, train_classes)
+    dataset2_train, dataset2_test = subset_dataset(dataset2, test_classes, train_classes)
     
     trainset = torch.utils.data.ConcatDataset([dataset1_train, dataset2_train])
     testset = torch.utils.data.ConcatDataset([dataset1_test, dataset2_test])
@@ -93,4 +93,12 @@ def load_fewshot_mnist(batch_size=128, perc_size=1, test_classes=[0, 1, 2]):
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
     testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=True, num_workers=2)
 
+#     for i, (x, y) in enumerate(trainloader):
+#         print(y)
+#         if i>=30:
+#             break
+    
+#     print(y.unique())
+#     import pdb; pdb.set_trace()
+    
     return trainloader, testloader, test_classes

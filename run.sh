@@ -44,4 +44,4 @@ python main.py --epochs 200 --batch-size 128 --learning-rate 0.1 --model SimpleD
 python main-siamese.py --epochs 500 --batch-size 4096 --learning-rate 0.07 --weight-decay 5e-3
 
 # few shot
-python main-siamese-fewshot.py --epochs 500 --batch-size 4096 --learning-rate 0.001 --weight-decay 5e-3 --n-shot 10
+python main-siamese-fewshot.py --epochs 500 --batch-size 4096 --learning-rate 0.001 --weight-decay 5e-3 --n-shot 1

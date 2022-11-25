@@ -54,9 +54,12 @@ def load_mnist(batch_size=128, perc_size=1):
     
     return trainloader, testloader, classes
 
-def subset_dataset(dataset, classes):
-    train_idx = sum(dataset.targets==i for i in classes).bool().nonzero().flatten()
-    test_idx = sum(dataset.targets!=i for i in classes).bool().nonzero().flatten()
+def subset_dataset(dataset, test_classes):
+    """
+    exclude the test_classes to create trainloader
+    """
+    test_idx = sum(dataset.targets==i for i in test_classes).bool().nonzero().flatten()
+    train_idx = sum(dataset.targets!=i for i in test_classes).bool().nonzero().flatten()
     train_subset = torch.utils.data.Subset(dataset, train_idx)
     test_subset = torch.utils.data.Subset(dataset, test_idx)
     return train_subset, test_subset

@@ -144,9 +144,9 @@ class SiamesePipeline(ClassifierPipeline):
         for clas in self.class_embds.keys():
             self.class_embds[clas] = sum(self.class_embds[clas])/len(self.class_embds[clas])
                 
-        print('Class Embeddings Stored Successfully...')
+        print(f'Class Embeddings Stored Successfully for classes {list(self.class_embds.keys())}...')
         
-    def get_closest_class(self, outputs):
+    def get_closest_class(self, outputs, classes=None):
         # compare outputs embeddings with each class embedding and select closes one as predicted
         predicted = []
         for output in outputs:
@@ -154,7 +154,10 @@ class SiamesePipeline(ClassifierPipeline):
             for clas in sorted(self.class_embds.keys()):
                 distances.append(nn.functional.pairwise_distance(self.class_embds[clas], output))
             
-            predicted.append(distances.index(min(distances)))
+            if classes:
+                predicted.append(classes[distances.index(min(distances))])
+            else:
+                predicted.append(distances.index(min(distances)))
             
         return torch.tensor(predicted)
         
@@ -177,10 +180,15 @@ class SiamesePipeline(ClassifierPipeline):
             if epoch % 10 == 0:
                 self.test()
         
-    def test(self, n_shot=10):
-        self.get_class_embeddings(n_shot=n_shot, test_classes=[0, 1, 2])
+    def test(self):
+        self.get_class_embeddings(n_shot=self.args.n_shot, test_classes=self.args.test_classes)
         correct = 0
         total = 0
+        
+        # prepare to count predictions for each class
+        correct_pred = {classname: 0 for classname in self.args.test_classes}
+        total_pred = {classname: 0 for classname in self.args.test_classes}
+        
         # since we're not training, we don't need to calculate the gradients for our outputs
         with torch.no_grad():
             for data in self.testloader:
@@ -188,12 +196,19 @@ class SiamesePipeline(ClassifierPipeline):
                 # calculate outputs by running images through the network
                 outputs = self.net.forward_once(inputs.reshape(inputs.size()[0], -1)).cpu().detach()
                 # the class with the highest energy is what we choose as prediction
-                predicted = self.get_closest_class(outputs)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
+                predictions = self.get_closest_class(outputs, self.args.test_classes)
+                for label, prediction in zip(labels, predictions):
+                    if label == prediction:
+                        correct_pred[label.item()] += 1
+                    total_pred[label.item()] += 1
 
-        test_accuracy = 100 * correct // total
-        print(f'Accuracy of the network on the 10000 test images: {test_accuracy} %')
+        # print accuracy for each class
+        for classname, correct_count in correct_pred.items():
+            accuracy = 100 * float(correct_count) / total_pred[classname]
+            print(f'Test Accuracy for class: {classname} is {accuracy:.1f} %')
+            
+        test_accuracy = 100 * sum(correct_pred.values()) // sum(total_pred.values())
+        print(f'Overall Test Accuracy for {sum(total_pred.values())} samples: {test_accuracy} %')
         if self.args.use_wandb:
             wandb.log({'valid_acc': test_accuracy})
         
@@ -203,7 +218,9 @@ if __name__ == "__main__":
     net = SiameseModel
     # datatuple = load_mnist(batch_size=args.batch_size, perc_size=args.perc_size)
     test_classes = [0, 1, 2]
+    # test_classes = [0, 2]
+    args.test_classes = test_classes
     datatuple = load_fewshot_mnist(batch_size=args.batch_size, perc_size=1, test_classes=test_classes)
     pipeline = SiamesePipeline(args=args, net=net, datatuple=datatuple)
     pipeline.train()
-    pipeline.test(n_shot = args.n_shot, test_classes=test_classes)
+    pipeline.test()

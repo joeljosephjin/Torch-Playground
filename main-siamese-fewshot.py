@@ -80,6 +80,10 @@ class SiamesePipeline(ClassifierPipeline):
         if self.args.use_wandb:
             wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
         
+    def modify_dataloader(self):
+        idx = (dataset_full.targets==0) | (dataset_full.targets==3) | (dataset_full.targets==6) | (dataset_full.targets==9)
+        
+        
     def get_contrast_loss(self, out_1, out_2, Y):
         margin = 5.0
         euclidean_distance = nn.functional.pairwise_distance(out_1, out_2)
@@ -88,6 +92,7 @@ class SiamesePipeline(ClassifierPipeline):
         return loss_contrastive, euclidean_distance
         
     def generate_batch(self, dataloader):
+        # filter in only specific classes
         train_iter = iter(dataloader)
         input_1, label_1 = next(train_iter)
         input_2, label_2 = next(train_iter)
@@ -104,10 +109,24 @@ class SiamesePipeline(ClassifierPipeline):
     def generate_testbatch(self):
         return self.generate_batch(self.testloader)
     
-    def get_class_embeddings(self):
-        # run for few epochs and collect into each class
+    def get_class_embeddings(self, n_shot=10, test_classes=[0, 1, 2]):
+        """
+        NOT EFFICIENT
+        run few batches and collect into each class n samples
+        and then stop storing once n samples are done
+        once all classes have n samples, finish the loop
+        EFFICIENT
+        select indices of samples of each class
+        run a loop n times
+        each time store all the required classes embeddings
+        by sampling indices randomly
+        """
         self.class_embds = defaultdict(list)
-        for i, data in enumerate(self.trainloader):
+        dataloader = self.testloader
+        # select indices of classes
+        import pdb; pdb.set_trace()
+        idxs = dataloader.targets
+        for i, data in enumerate(dataloader):
             inputs, labels = data[0].to(self.device), data[1].to(self.device)
             outputs = self.net.forward_once(inputs.reshape(inputs.size()[0], -1)).cpu().detach()
             for i, label in enumerate(labels):
@@ -171,7 +190,8 @@ class SiamesePipeline(ClassifierPipeline):
         
 if __name__ == "__main__":
     net = SiameseModel
-    datatuple = load_mnist(batch_size=args.batch_size, perc_size=args.perc_size)
+    # datatuple = load_mnist(batch_size=args.batch_size, perc_size=args.perc_size)
+    datatuple = load_fewshot_mnist(batch_size=args.batch_size, perc_size=args.perc_size)
     pipeline = SiamesePipeline(args=args, net=net, datatuple=datatuple)
     pipeline.train()
     pipeline.test()

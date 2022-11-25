@@ -16,25 +16,25 @@ from models.shufflenet import ShuffleNet
 from data.data import *
 from utils import set_seed
 
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--seed', type=int, default=42)
-parser.add_argument('--batch-size', type=int, default=4)
-parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleModel or AVModel,..")
-parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
-parser.add_argument('--learning-rate', type=float, default=0.01)
-parser.add_argument('--momentum', type=float, default=0.9)
-parser.add_argument('--weight-decay', type=float, default=5e-4)
-parser.add_argument('--perc-size', type=float, default=1)
-parser.add_argument('--epochs', type=int, default=100)
-parser.add_argument('--log-interval', type=int, default=5)
-parser.add_argument('--save-interval', type=int, default=6)
-parser.add_argument('--use-wandb', action='store_true')
-parser.add_argument('--resume-from-saved', type=str, default=None, help="name of the exp to load from")
-parser.add_argument('--save-as', type=str, default='', help="a name for the model save file")
-args = parser.parse_args()
-
-set_seed(args.seed)
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--batch-size', type=int, default=4)
+    parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleModel or AVModel,..")
+    parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
+    parser.add_argument('--learning-rate', type=float, default=0.01)
+    parser.add_argument('--momentum', type=float, default=0.9)
+    parser.add_argument('--weight-decay', type=float, default=5e-4)
+    parser.add_argument('--perc-size', type=float, default=1)
+    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--log-interval', type=int, default=5)
+    parser.add_argument('--save-interval', type=int, default=6)
+    parser.add_argument('--use-wandb', action='store_true')
+    parser.add_argument('--resume-from-saved', type=str, default=None, help="name of the exp to load from")
+    parser.add_argument('--save-as', type=str, default='', help="a name for the model save file")
+    args = parser.parse_args()
+    
+    return args
 
 class ClassifierPipeline():
 
@@ -43,7 +43,7 @@ class ClassifierPipeline():
         self.args = args
         
         if self.args.use_wandb:
-            wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
+            wandb.init(project="torch-cnn", entity="joeljosephjin", config=self.args)
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         # if self.device=
@@ -175,6 +175,8 @@ class ClassifierPipeline():
 
             
 if __name__=="__main__":
+    args = get_args()
+    set_seed(args.seed)
     print('Loading Dataset..')
     load_dataset_fn = eval(f'load_{args.dataset}')
     datatuple = load_dataset_fn(batch_size=args.batch_size, perc_size=args.perc_size)

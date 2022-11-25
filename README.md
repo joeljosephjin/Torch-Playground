@@ -56,3 +56,5 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - try add siamese classification experiments also (done)
 - add test accuracy setup in siamese experiment (done)
 - add class selective dataloader for fewshot experiments (done)
+- add zero shot testing module for siamese-fewshot model (done)
+- add few shot testing module for siamese-fewshot model (in progress)

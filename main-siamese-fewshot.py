@@ -6,24 +6,29 @@ import os
 import numpy as np
 from collections import defaultdict
 import wandb
+from utils import set_seed
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--seed', type=int, default=42)
-parser.add_argument('--batch-size', type=int, default=512)
-parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleModel or AVModel,..")
-parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
-parser.add_argument('--learning-rate', type=float, default=0.005)
-parser.add_argument('--momentum', type=float, default=0.9)
-parser.add_argument('--weight-decay', type=float, default=5e-4)
-parser.add_argument('--perc-size', type=float, default=1)
-parser.add_argument('--epochs', type=int, default=100)
-parser.add_argument('--log-interval', type=int, default=5)
-parser.add_argument('--save-interval', type=int, default=6)
-parser.add_argument('--use-wandb', action='store_true')
-parser.add_argument('--resume-from-saved', type=str, default=None, help="name of the exp to load from")
-parser.add_argument('--save-as', type=str, default='', help="a name for the model save file")
-args = parser.parse_args()
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--batch-size', type=int, default=512)
+    parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleModel or AVModel,..")
+    parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
+    parser.add_argument('--learning-rate', type=float, default=0.005)
+    parser.add_argument('--momentum', type=float, default=0.9)
+    parser.add_argument('--weight-decay', type=float, default=5e-4)
+    parser.add_argument('--perc-size', type=float, default=1)
+    parser.add_argument('--n-shot', type=float, default=10)
+    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--log-interval', type=int, default=5)
+    parser.add_argument('--save-interval', type=int, default=6)
+    parser.add_argument('--use-wandb', action='store_true')
+    parser.add_argument('--resume-from-saved', type=str, default=None, help="name of the exp to load from")
+    parser.add_argument('--save-as', type=str, default='', help="a name for the model save file")
+    args = parser.parse_args()
+    
+    return args
 
 
 # DIRECTORY INFORMATION
@@ -78,7 +83,7 @@ class SiamesePipeline(ClassifierPipeline):
         self.args=args
         
         if self.args.use_wandb:
-            wandb.init(project="torch-cnn", entity="joeljosephjin", config=args)
+            wandb.init(project="torch-cnn", entity="joeljosephjin", config=self.args)
         
     def modify_dataloader(self):
         idx = (dataset_full.targets==0) | (dataset_full.targets==3) | (dataset_full.targets==6) | (dataset_full.targets==9)
@@ -115,7 +120,7 @@ class SiamesePipeline(ClassifierPipeline):
         run few batches and collect into each class n samples
         and then stop storing once n samples are done
         once all classes have n samples, finish the loop
-        EFFICIENT
+        EFFICIENT (but NOT POSSIBLE without datasets module)
         select indices of samples of each class
         run a loop n times
         each time store all the required classes embeddings
@@ -124,13 +129,17 @@ class SiamesePipeline(ClassifierPipeline):
         self.class_embds = defaultdict(list)
         dataloader = self.testloader
         # select indices of classes
-        import pdb; pdb.set_trace()
-        idxs = dataloader.targets
         for i, data in enumerate(dataloader):
             inputs, labels = data[0].to(self.device), data[1].to(self.device)
             outputs = self.net.forward_once(inputs.reshape(inputs.size()[0], -1)).cpu().detach()
             for i, label in enumerate(labels):
+                if len(self.class_embds[label.cpu().item()]) >= n_shot:
+                    continue
                 self.class_embds[label.cpu().item()].append(outputs[i])
+                
+            # if all the classes are filled, then break the loop
+            if all([len(self.class_embds[x])>=n_shot for x in test_classes]):
+                break
                 
         for clas in self.class_embds.keys():
             self.class_embds[clas] = sum(self.class_embds[clas])/len(self.class_embds[clas])
@@ -168,8 +177,8 @@ class SiamesePipeline(ClassifierPipeline):
             if epoch % 10 == 0:
                 self.test()
         
-    def test(self):
-        self.get_class_embeddings()
+    def test(self, n_shot=10):
+        self.get_class_embeddings(n_shot=n_shot, test_classes=[0, 1, 2])
         correct = 0
         total = 0
         # since we're not training, we don't need to calculate the gradients for our outputs
@@ -189,9 +198,12 @@ class SiamesePipeline(ClassifierPipeline):
             wandb.log({'valid_acc': test_accuracy})
         
 if __name__ == "__main__":
+    args = get_args()
+    set_seed(args.seed)
     net = SiameseModel
     # datatuple = load_mnist(batch_size=args.batch_size, perc_size=args.perc_size)
-    datatuple = load_fewshot_mnist(batch_size=args.batch_size, perc_size=args.perc_size)
+    test_classes = [0, 1, 2]
+    datatuple = load_fewshot_mnist(batch_size=args.batch_size, perc_size=1, test_classes=test_classes)
     pipeline = SiamesePipeline(args=args, net=net, datatuple=datatuple)
     pipeline.train()
-    pipeline.test()
+    pipeline.test(n_shot = args.n_shot, test_classes=test_classes)

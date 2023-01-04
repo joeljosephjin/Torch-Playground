@@ -85,10 +85,6 @@ class SiamesePipeline(ClassifierPipeline):
         if self.args.use_wandb:
             wandb.init(project="torch-cnn", entity="joeljosephjin", config=self.args)
         
-    def modify_dataloader(self):
-        idx = (dataset_full.targets==0) | (dataset_full.targets==3) | (dataset_full.targets==6) | (dataset_full.targets==9)
-        
-        
     def get_contrast_loss(self, out_1, out_2, Y):
         margin = 5.0
         euclidean_distance = nn.functional.pairwise_distance(out_1, out_2)
@@ -217,8 +213,8 @@ if __name__ == "__main__":
     set_seed(args.seed)
     net = SiameseModel
     # datatuple = load_mnist(batch_size=args.batch_size, perc_size=args.perc_size)
-    test_classes = [0, 1, 2]
-    # test_classes = [0, 2]
+    # test_classes = [0, 1, 2]
+    test_classes = [0, 2]
     args.test_classes = test_classes
     datatuple = load_fewshot_mnist(batch_size=args.batch_size, perc_size=1, test_classes=test_classes)
     pipeline = SiamesePipeline(args=args, net=net, datatuple=datatuple)

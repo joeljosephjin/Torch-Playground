@@ -2,6 +2,8 @@
 
 Prior libraries for image classification, hyperparameter tuning, report creation, etc..]
 
+We get 74% zero shot 3 way accuracy on MNIST dataset using Siamese Networks.
+
 ### formats
 
 Dataloader: should be of same specific format as loading inbuilt mnist or cifar
@@ -57,4 +59,6 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - add test accuracy setup in siamese experiment (done)
 - add class selective dataloader for fewshot experiments (done)
 - add zero shot testing module for siamese-fewshot model (done)
-- add few shot testing module for siamese-fewshot model (in progress)
+- fix bugs in zeroshot (done)
+- add few shot testing module for siamese-fewshot model (in progress-later)
+- record some basic experiments using wandb

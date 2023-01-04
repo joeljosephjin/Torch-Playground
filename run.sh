@@ -45,3 +45,6 @@ python main-siamese.py --epochs 500 --batch-size 4096 --learning-rate 0.07 --wei
 
 # few shot
 python main-siamese-fewshot.py --epochs 500 --batch-size 4096 --learning-rate 0.001 --weight-decay 5e-3 --n-shot 1
+
+# 74%
+python main-siamese-fewshot.py --epochs 500 --batch-size 4096 --learning-rate 0.005 --weight-decay 1e-3

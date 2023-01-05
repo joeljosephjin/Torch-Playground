@@ -59,6 +59,10 @@ class ClassifierPipeline():
         else:
             self.net = net().to(self.device)
 
+        model_parameters = filter(lambda p: p.requires_grad, self.net.parameters())
+        params = sum([torch.prod(torch.tensor(p.size())) for p in model_parameters])
+        print(f'Number of Parameters: {params/int(1e6):.2f}M')
+            
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum, weight_decay=self.args.weight_decay) # 0.001, 0.9
         self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=200)

@@ -61,4 +61,6 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - add zero shot testing module for siamese-fewshot model (done)
 - fix bugs in zeroshot (done)
 - add few shot testing module for siamese-fewshot model (in progress-later)
-- record some basic experiments using wandb
+- record some basic experiments using wandb (done)
+- print the number of parameters (done)
+- get 93% accuracy on ResNet

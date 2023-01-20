@@ -14,7 +14,7 @@ import argparse
 from models.models import *
 from models.shufflenet import ShuffleNet
 from data.data import *
-from utils import set_seed
+from utils import set_seed, accuracy_densenet
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -24,7 +24,7 @@ def get_args():
     parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
     parser.add_argument('--learning-rate', type=float, default=0.01)
     parser.add_argument('--momentum', type=float, default=0.9)
-    parser.add_argument('--weight-decay', type=float, default=5e-4)
+    parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--perc-size', type=float, default=1)
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--log-interval', type=int, default=5)
@@ -64,16 +64,18 @@ class ClassifierPipeline():
         print(f'Number of Parameters: {params/int(1e6):.2f}M')
             
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum, weight_decay=self.args.weight_decay) # 0.001, 0.9
-        self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=200)
+        self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum, nesterov=True, weight_decay=self.args.weight_decay) # 0.001, 0.9
+        # self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=200)
 
     def train(self, epochs=3):
         self.start_time = time()
         logs_interval = 100
         for epoch in range(self.args.epochs):  # loop over the dataset multiple times; 4
+            self.adjust_learning_rate(epoch)
 
             running_loss = []
             running_acc = []
+            running_accs_densenet = []
             for i, data in enumerate(self.trainloader):
                 # get the inputs; data is a list of [inputs, labels]
                 inputs, labels = data[0].to(self.device), data[1].to(self.device)
@@ -91,14 +93,18 @@ class ClassifierPipeline():
                 correct = (predicted == labels).sum().item()
                 total = labels.size(0)
                 acc = correct / total
+                
+                # calc acc_densenet
+                acci_densenet = accuracy_densenet(outputs.data, labels, topk=(1,))[0]
 
                 # print statistics
                 if self.args.use_wandb:
-                    wandb.log({'loss':loss.item(), 'train_acc':acc})
+                    wandb.log({'loss':loss.item(), 'train_acc':acc, 'acc_densenet':acci_densenet.item()})
                 running_loss.append(loss.item())
                 running_acc.append(acc)
+                running_accs_densenet.append(acci_densenet)
                 if i % logs_interval == 0:# and i != 0:    # print every 2000 mini-batches
-                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {sum(running_loss) / len(running_loss):.3f} acc: {sum(running_acc) / len(running_loss):.3f} time: {(time() - self.start_time) / 60:.2f} minutes')
+                    print(f'[{epoch + 1}, {i + 1:5d}] loss: {sum(running_loss) / len(running_loss):.3f} acc: {sum(running_acc) / len(running_loss):.3f} acc_densenet: {sum(running_accs_densenet) / len(running_accs_densenet):.3f} time: {(time() - self.start_time) / 60:.2f} minutes')
                     running_loss = []
                     running_acc = []
                 
@@ -110,13 +116,16 @@ class ClassifierPipeline():
                 # self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum)
                 # self.net.train()
             
-            self.scheduler.step()
+            # self.scheduler.step()
+            
+            
             
         print('Finished Training')
 
     def test(self):
         correct = 0
         total = 0
+        accs_densenet = []
         # since we're not training, we don't need to calculate the gradients for our outputs
         with torch.no_grad():
             for data in self.testloader:
@@ -127,12 +136,17 @@ class ClassifierPipeline():
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
+                
+                # calc acc_densenet
+                acci_densenet = accuracy_densenet(outputs.data, labels, topk=(1,))[0]
+                accs_densenet.append(acci_densenet)
 
         test_accuracy = 100 * correct // total
-        print(f'Accuracy of the network on the 10000 test images: {test_accuracy} %')
+        acc_densenet = sum(accs_densenet)/len(accs_densenet)
+        print(f'Accuracy of the network on the 10000 test images: {test_accuracy} %, acc_densenet is {acc_densenet} %')
         if self.args.use_wandb:
             # wandb.run.summary["test_accuracy"] = test_accuracy
-            wandb.log({'valid_acc': test_accuracy})
+            wandb.log({'valid_acc': test_accuracy, 'valid_acc_densenet': acc_densenet})
 
 
         # prepare to count predictions for each class
@@ -176,6 +190,14 @@ class ClassifierPipeline():
         model = model.to(self.device)
         print(f'Model loaded successfully from {path} ...')
         return model
+    
+    def adjust_learning_rate(self, epoch):
+        """Sets the learning rate to the initial LR decayed by 10 after 150 and 225 epochs"""
+        lr = args.learning_rate * (0.1 ** (epoch // 150)) * (0.1 ** (epoch // 225))
+        if args.use_wandb:
+            wandb.log({'learning_rate':lr}, )
+        for param_group in self.optimizer.param_groups:
+            param_group['lr'] = lr
 
             
 if __name__=="__main__":

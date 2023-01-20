@@ -17,9 +17,11 @@ def load_cifar_10(batch_size=4, perc_size=1):
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize(mean, stdv)])
+    
     test_transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, stdv)])
+    
     batch_size = batch_size # 4 
 
     trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=train_transform)

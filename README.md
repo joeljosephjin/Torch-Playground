@@ -63,4 +63,5 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - add few shot testing module for siamese-fewshot model (in progress-later)
 - record some basic experiments using wandb (done)
 - print the number of parameters (done)
-- get 93% accuracy on ResNet
+- get 93% accuracy on ResNet ()
+- add resume from chkpt using wandb (to do)

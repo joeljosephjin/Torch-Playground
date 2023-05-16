@@ -2,6 +2,7 @@ import wandb
 import torch
 from torch import nn, optim
 import torchvision.transforms as transforms
+import torchvision.datasets as datasets
 import importlib
 from time import time
 
@@ -15,6 +16,13 @@ from models.models import *
 from models.shufflenet import ShuffleNet
 from data.data import *
 from utils import set_seed, accuracy_densenet
+
+def check_trainloader(train_loader):
+    for i, (input, target) in enumerate(train_loader):
+        print('input_var:', input[0][0][0][0])
+        if i>3:
+            import pdb; pdb.set_trace()
+            break
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -36,6 +44,7 @@ def get_args():
     
     return args
 
+
 class ClassifierPipeline():
 
     def __init__(self, args=None, net=None, datatuple=None):
@@ -52,18 +61,35 @@ class ClassifierPipeline():
         torch.autograd.set_detect_anomaly(True)
         
         # load cifar-10
-        self.trainloader, self.testloader, self.classes = datatuple
+        # self.trainloader, self.testloader, self.classes = datatuple
+        
+        self.classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+        # model = DenseNet3(40, 10, 12, 1.0, False, 0)
+        self.trainloader, self.testloader = load_cifar_10_other()
+        # check_trainloader(self.trainloader)
+        # print('trainloader id:', list(self.trainloader)[0][0][0][0][0][0])
+        
+        # import sys; sys.exit()
+        # import pdb; pdb.set_trace()
         
         if self.args.resume_from_saved:
             self.net = self.load_model(filename=self.args.model+self.args.resume_from_saved, modelname=self.args.model)
         else:
             self.net = net().to(self.device)
-
+            
+        # self.net = model.to(self.device)
+        # check_trainloader(self.trainloader)
+        
+        # import joblib
+        # self.net = joblib.load('model_other.pkl')
+        # import pdb; pdb.set_trace()
+        
         model_parameters = filter(lambda p: p.requires_grad, self.net.parameters())
         params = sum([torch.prod(torch.tensor(p.size())) for p in model_parameters])
         print(f'Number of Parameters: {params/int(1e6):.2f}M')
             
         self.criterion = nn.CrossEntropyLoss()
+        print('args.lr:', self.args.learning_rate, self.args.momentum, self.args.weight_decay)
         self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum, nesterov=True, weight_decay=self.args.weight_decay) # 0.001, 0.9
         # self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=200)
 
@@ -76,17 +102,28 @@ class ClassifierPipeline():
             running_loss = []
             running_acc = []
             running_accs_densenet = []
+            self.net.train()
             for i, data in enumerate(self.trainloader):
                 # get the inputs; data is a list of [inputs, labels]
-                inputs, labels = data[0].to(self.device), data[1].to(self.device)
+                # inputs, labels = data[0].to(self.device), data[1].to(self.device)
+                inputs = data[0].cuda(non_blocking=True)
+                labels =  data[1].to(self.device)
 
-                # zero the parameter gradients
-                self.optimizer.zero_grad()
 
                 # forward + backward + optimize
+                params_list=list(self.net.parameters())
+                # print('params_list:', params_list[0][0][0][0])
+                # print('inputs:', inputs[0][0][0][0])
+                # import joblib; self.net = joblib.load('model_other.pkl')
+                # import joblib; joblib.dump(self.net, 'model.pkl')
+                # import pdb; pdb.set_trace()
                 outputs = self.net(inputs)
                 loss = self.criterion(outputs, labels)
+                self.optimizer.zero_grad()
                 loss.backward()
+                # print('grads_list:', params_list[0].grad[0][0][0])
+                # import joblib; joblib.dump(self.net, 'model.pkl')
+                # import pdb; pdb.set_trace()
                 self.optimizer.step()
                 # calc accuracy
                 _, predicted = torch.max(outputs.data, 1)
@@ -98,8 +135,8 @@ class ClassifierPipeline():
                 acci_densenet = accuracy_densenet(outputs.data, labels, topk=(1,))[0]
 
                 # print statistics
-                if self.args.use_wandb:
-                    wandb.log({'loss':loss.item(), 'train_acc':acc, 'acc_densenet':acci_densenet.item()})
+                # if self.args.use_wandb:
+                #     wandb.log({'loss':loss.item(), 'train_acc':acc, 'acc_densenet':acci_densenet.item(), 'model_param':list(self.net.parameters())[0][0][0][0][0].item()})
                 running_loss.append(loss.item())
                 running_acc.append(acc)
                 running_accs_densenet.append(acci_densenet)
@@ -108,6 +145,9 @@ class ClassifierPipeline():
                     running_loss = []
                     running_acc = []
                 
+            if self.args.use_wandb:
+                wandb.log({'loss':loss.item(), 'train_acc':acc, 'acc_densenet':acci_densenet.item(), 'model_param':list(self.net.parameters())[0][0][0][0][0].item()}, step=epoch)
+
             if epoch % self.args.log_interval == 0:
                 self.test()
             if epoch % self.args.save_interval == 0:
@@ -195,7 +235,7 @@ class ClassifierPipeline():
         """Sets the learning rate to the initial LR decayed by 10 after 150 and 225 epochs"""
         lr = args.learning_rate * (0.1 ** (epoch // 150)) * (0.1 ** (epoch // 225))
         if args.use_wandb:
-            wandb.log({'learning_rate':lr}, )
+            wandb.log({'learning_rate':lr})
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = lr
 

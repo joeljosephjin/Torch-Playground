@@ -65,3 +65,5 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - print the number of parameters (done)
 - get 93% accuracy on ResNet ()
 - add resume from chkpt using wandb (to do)
+- fix the mistakes of 1. not using cudnn.benchmark and 2. not using model.test before the testing loop. (done)
+- now getting accuracy of 94.7%

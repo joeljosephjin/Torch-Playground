@@ -1,3 +1,6 @@
+"""
+import joblib; joblib.dump(self.net, 'model.pkl')
+"""
 import wandb
 import torch
 from torch import nn, optim
@@ -7,6 +10,8 @@ import importlib
 from time import time
 
 import torch.nn as nn
+import torch.backends.cudnn as cudnn
+
 import torch.nn.functional as F
 import torch.optim as optim
 
@@ -83,6 +88,7 @@ class ClassifierPipeline():
         # import joblib
         # self.net = joblib.load('model_other.pkl')
         # import pdb; pdb.set_trace()
+        self.net.train()
         
         model_parameters = filter(lambda p: p.requires_grad, self.net.parameters())
         params = sum([torch.prod(torch.tensor(p.size())) for p in model_parameters])
@@ -96,13 +102,17 @@ class ClassifierPipeline():
     def train(self, epochs=3):
         self.start_time = time()
         logs_interval = 100
+        
+        # import pdb; pdb.set_trace()
+        
+        
         for epoch in range(self.args.epochs):  # loop over the dataset multiple times; 4
+            self.net.train()
             self.adjust_learning_rate(epoch)
 
             running_loss = []
             running_acc = []
             running_accs_densenet = []
-            self.net.train()
             for i, data in enumerate(self.trainloader):
                 # get the inputs; data is a list of [inputs, labels]
                 # inputs, labels = data[0].to(self.device), data[1].to(self.device)
@@ -112,19 +122,15 @@ class ClassifierPipeline():
 
                 # forward + backward + optimize
                 params_list=list(self.net.parameters())
-                # print('params_list:', params_list[0][0][0][0])
-                # print('inputs:', inputs[0][0][0][0])
-                # import joblib; self.net = joblib.load('model_other.pkl')
-                # import joblib; joblib.dump(self.net, 'model.pkl')
-                # import pdb; pdb.set_trace()
+                # import joblib; joblib.dump(self.net, 'model.pkl'); print(f"before_model_forward_STEP_{i}");import pdb; pdb.set_trace()
                 outputs = self.net(inputs)
+                # import joblib; joblib.dump(outputs, 'outputs.pkl'); joblib.dump(inputs, 'inputs.pkl'); joblib.dump(self.net, 'model.pkl'); print(f"after_model_forward_STEP_{i}");import pdb; pdb.set_trace()
                 loss = self.criterion(outputs, labels)
                 self.optimizer.zero_grad()
                 loss.backward()
-                # print('grads_list:', params_list[0].grad[0][0][0])
-                # import joblib; joblib.dump(self.net, 'model.pkl')
-                # import pdb; pdb.set_trace()
+                # import joblib; joblib.dump(self.net, 'model.pkl'); print(f"before_optimizer_step_STEP_{i}");import pdb; pdb.set_trace()
                 self.optimizer.step()
+                # import joblib; joblib.dump(self.net, 'model.pkl'); print(f"after_optimizer_step_STEP_{i}");import pdb; pdb.set_trace()
                 # calc accuracy
                 _, predicted = torch.max(outputs.data, 1)
                 correct = (predicted == labels).sum().item()
@@ -145,11 +151,13 @@ class ClassifierPipeline():
                     running_loss = []
                     running_acc = []
                 
+            # import pdb; pdb.set_trace()
             if self.args.use_wandb:
-                wandb.log({'loss':loss.item(), 'train_acc':acc, 'acc_densenet':acci_densenet.item(), 'model_param':list(self.net.parameters())[0][0][0][0][0].item()}, step=epoch)
+                # wandb.log({'train_loss':loss.item(), 'train_acc':acc, 'acc_densenet':acci_densenet.item(), 'model_param':list(self.net.parameters())[0][0][0][0][0].item()}, step=epoch)
+                wandb.log({'train_loss':loss.item(), 'train_acc':acci_densenet.item(), 'model_param':list(self.net.parameters())[0][0][0][0][0].item()})
 
             if epoch % self.args.log_interval == 0:
-                self.test()
+                self.test(epoch=epoch)
             if epoch % self.args.save_interval == 0:
                 self.save_model(model=self.net, filename=self.args.model+self.args.save_as)
                 # self.net = self.load_model(filename=self.args.model+self.args.save_as, modelname=self.args.model)
@@ -162,10 +170,11 @@ class ClassifierPipeline():
             
         print('Finished Training')
 
-    def test(self):
+    def test(self, epoch):
         correct = 0
         total = 0
         accs_densenet = []
+        self.net.eval()
         # since we're not training, we don't need to calculate the gradients for our outputs
         with torch.no_grad():
             for data in self.testloader:
@@ -186,7 +195,8 @@ class ClassifierPipeline():
         print(f'Accuracy of the network on the 10000 test images: {test_accuracy} %, acc_densenet is {acc_densenet} %')
         if self.args.use_wandb:
             # wandb.run.summary["test_accuracy"] = test_accuracy
-            wandb.log({'valid_acc': test_accuracy, 'valid_acc_densenet': acc_densenet})
+            # wandb.log({'valid_acc': test_accuracy, 'valid_acc_densenet': acc_densenet})
+            wandb.log({'valid_acc': acc_densenet})
 
 
         # prepare to count predictions for each class
@@ -243,6 +253,7 @@ class ClassifierPipeline():
 if __name__=="__main__":
     args = get_args()
     set_seed(args.seed)
+    cudnn.benchmark = True
     print('Loading Dataset..')
     load_dataset_fn = eval(f'load_{args.dataset}')
     datatuple = load_dataset_fn(batch_size=args.batch_size, perc_size=args.perc_size)

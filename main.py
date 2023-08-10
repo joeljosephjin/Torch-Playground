@@ -22,12 +22,6 @@ from models.shufflenet import ShuffleNet
 from data.data import *
 from utils import set_seed, accuracy_densenet
 
-def check_trainloader(train_loader):
-    for i, (input, target) in enumerate(train_loader):
-        print('input_var:', input[0][0][0][0])
-        if i>3:
-            import pdb; pdb.set_trace()
-            break
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -60,34 +54,20 @@ class ClassifierPipeline():
             wandb.init(project="torch-cnn", entity="joeljosephjin", config=self.args)
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        # if self.device=
-        # self.device = torch.device('cpu')
 
         torch.autograd.set_detect_anomaly(True)
         
         # load cifar-10
-        # self.trainloader, self.testloader, self.classes = datatuple
-        
         self.classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
         # model = DenseNet3(40, 10, 12, 1.0, False, 0)
-        self.trainloader, self.testloader = load_cifar_10_other()
-        # check_trainloader(self.trainloader)
-        # print('trainloader id:', list(self.trainloader)[0][0][0][0][0][0])
-        
-        # import sys; sys.exit()
-        # import pdb; pdb.set_trace()
+        # self.trainloader, self.testloader = load_cifar_10_other()
+        self.trainloader, self.testloader = load_cifar_10()
         
         if self.args.resume_from_saved:
             self.net = self.load_model(filename=self.args.model+self.args.resume_from_saved, modelname=self.args.model)
         else:
             self.net = net().to(self.device)
             
-        # self.net = model.to(self.device)
-        # check_trainloader(self.trainloader)
-        
-        # import joblib
-        # self.net = joblib.load('model_other.pkl')
-        # import pdb; pdb.set_trace()
         self.net.train()
         
         model_parameters = filter(lambda p: p.requires_grad, self.net.parameters())
@@ -97,14 +77,10 @@ class ClassifierPipeline():
         self.criterion = nn.CrossEntropyLoss()
         print('args.lr:', self.args.learning_rate, self.args.momentum, self.args.weight_decay)
         self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum, nesterov=True, weight_decay=self.args.weight_decay) # 0.001, 0.9
-        # self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=200)
 
     def train(self, epochs=3):
         self.start_time = time()
         logs_interval = 100
-        
-        # import pdb; pdb.set_trace()
-        
         
         for epoch in range(self.args.epochs):  # loop over the dataset multiple times; 4
             self.net.train()
@@ -115,22 +91,17 @@ class ClassifierPipeline():
             running_accs_densenet = []
             for i, data in enumerate(self.trainloader):
                 # get the inputs; data is a list of [inputs, labels]
-                # inputs, labels = data[0].to(self.device), data[1].to(self.device)
                 inputs = data[0].cuda(non_blocking=True)
                 labels =  data[1].to(self.device)
 
 
                 # forward + backward + optimize
                 params_list=list(self.net.parameters())
-                # import joblib; joblib.dump(self.net, 'model.pkl'); print(f"before_model_forward_STEP_{i}");import pdb; pdb.set_trace()
                 outputs = self.net(inputs)
-                # import joblib; joblib.dump(outputs, 'outputs.pkl'); joblib.dump(inputs, 'inputs.pkl'); joblib.dump(self.net, 'model.pkl'); print(f"after_model_forward_STEP_{i}");import pdb; pdb.set_trace()
                 loss = self.criterion(outputs, labels)
                 self.optimizer.zero_grad()
                 loss.backward()
-                # import joblib; joblib.dump(self.net, 'model.pkl'); print(f"before_optimizer_step_STEP_{i}");import pdb; pdb.set_trace()
                 self.optimizer.step()
-                # import joblib; joblib.dump(self.net, 'model.pkl'); print(f"after_optimizer_step_STEP_{i}");import pdb; pdb.set_trace()
                 # calc accuracy
                 _, predicted = torch.max(outputs.data, 1)
                 correct = (predicted == labels).sum().item()
@@ -140,9 +111,6 @@ class ClassifierPipeline():
                 # calc acc_densenet
                 acci_densenet = accuracy_densenet(outputs.data, labels, topk=(1,))[0]
 
-                # print statistics
-                # if self.args.use_wandb:
-                #     wandb.log({'loss':loss.item(), 'train_acc':acc, 'acc_densenet':acci_densenet.item(), 'model_param':list(self.net.parameters())[0][0][0][0][0].item()})
                 running_loss.append(loss.item())
                 running_acc.append(acc)
                 running_accs_densenet.append(acci_densenet)
@@ -151,22 +119,13 @@ class ClassifierPipeline():
                     running_loss = []
                     running_acc = []
                 
-            # import pdb; pdb.set_trace()
             if self.args.use_wandb:
-                # wandb.log({'train_loss':loss.item(), 'train_acc':acc, 'acc_densenet':acci_densenet.item(), 'model_param':list(self.net.parameters())[0][0][0][0][0].item()}, step=epoch)
                 wandb.log({'train_loss':loss.item(), 'train_acc':acci_densenet.item(), 'model_param':list(self.net.parameters())[0][0][0][0][0].item()})
 
             if epoch % self.args.log_interval == 0:
                 self.test(epoch=epoch)
             if epoch % self.args.save_interval == 0:
                 self.save_model(model=self.net, filename=self.args.model+self.args.save_as)
-                # self.net = self.load_model(filename=self.args.model+self.args.save_as, modelname=self.args.model)
-                # self.optimizer = optim.SGD(self.net.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum)
-                # self.net.train()
-            
-            # self.scheduler.step()
-            
-            
             
         print('Finished Training')
 
@@ -194,7 +153,6 @@ class ClassifierPipeline():
         acc_densenet = sum(accs_densenet)/len(accs_densenet)
         print(f'Accuracy of the network on the 10000 test images: {test_accuracy} %, acc_densenet is {acc_densenet} %')
         if self.args.use_wandb:
-            # wandb.run.summary["test_accuracy"] = test_accuracy
             # wandb.log({'valid_acc': test_accuracy, 'valid_acc_densenet': acc_densenet})
             wandb.log({'valid_acc': acc_densenet})
 

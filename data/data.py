@@ -6,7 +6,7 @@ import torch.utils.data as data_utils
 
 
 def load_cifar_10_other(augment=True, batch_size=64):
-    print('augment:', augment, 'batch_size:', batch_size)
+    # print('augment:', augment, 'batch_size:', batch_size) # true, 64
     # Data loading code
     normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
                                      std=[x/255.0 for x in [63.0, 62.1, 66.7]])
@@ -37,19 +37,23 @@ def load_cifar_10_other(augment=True, batch_size=64):
         datasets.CIFAR10('./data', train=False, transform=transform_test),
         batch_size=batch_size, shuffle=True, **kwargs)
     
+    # print('trainloader.data.shape:', train_loader.dataset)
+    
     return train_loader, val_loader
 
 def load_cifar_10(batch_size=64, perc_size=1):
-    mean = [0.49139968, 0.48215841, 0.44653091]
+    # mean = [0.49139968, 0.48215841, 0.44653091]
+    mean = [x/255.0 for x in [125.3, 123.0, 113.9]]
     # mean = [0.5, 0.5, 0.5]
-    stdv = [0.24703223, 0.24348513, 0.26158784]
+    # stdv = [0.24703223, 0.24348513, 0.26158784]
+    stdv = [x/255.0 for x in [63.0, 62.1, 66.7]]
     # stdv = [0.5, 0.5, 0.5]
     train_transform = transforms.Compose([
         # transforms.RandomRotation(10),
         # transforms.RandomAffine(0, shear=10, scale=(0.8,1.2)),
         # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
         transforms.RandomCrop(32, padding=4),
-        # transforms.RandomHorizontalFlip(),
+        transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize(mean, stdv)])
     
@@ -61,16 +65,17 @@ def load_cifar_10(batch_size=64, perc_size=1):
 
     trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=train_transform)
     # trainset = data_utils.Subset(trainset, torch.arange(int(trainset.data.shape[0]*perc_size)))
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=True)
-    print('trainloader.data.shape:', trainloader.dataset)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=1, pin_memory=True)
+    # print('trainloader.data.shape:', trainloader.dataset)
 
     testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=test_transform)
     # testset = data_utils.Subset(testset, torch.arange(int(testset.data.shape[0]*perc_size)))
-    testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2, pin_memory=True)
-    print('testloader.data.shape:', testloader.dataset)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=1, pin_memory=True)
+    # print('testloader.data.shape:', testloader.dataset)
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-    return trainloader, testloader, classes
+    # return trainloader, testloader, classes
+    return trainloader, testloader
 
 def load_mnist(batch_size=128, perc_size=1):
     

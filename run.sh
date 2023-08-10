@@ -60,3 +60,4 @@ python main.py --epochs 200 --batch-size 64 --learning-rate 0.01 --model DenseNe
 
 # densenet cifar10 93.75%
 python main.py --epochs 300 --batch-size 64 --learning-rate 0.1 --model DenseNet3 --dataset cifar_10 --use-wandb
+

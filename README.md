@@ -70,7 +70,9 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - investigate the issue of identical dataloaders giving different results:
     - is there really a difference?::: yes, 0.3% difference exists
     - make code to characterize (done)::: found a difference in total sum
-    - 
+    - trying worker=1, to achieve higher accuracy (done)::: failed; still gives the lower acuracy
+    - try to find the difference again more intensively
+    - try shuffle=true for testset (in progress)
 
 
 

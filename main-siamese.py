@@ -52,7 +52,6 @@ MARGIN = 5.0
 
 
 class SiameseModel(nn.Module):
-    
     def __init__(self):
         super(SiameseModel, self).__init__()
         image_size = 28*28

@@ -2,9 +2,13 @@
 
 [Colab Notebook](https://colab.research.google.com/drive/1w5uEuyaX11vndVqPy5miFg8FOT892Ju1#scrollTo=YP1RRHgp1JO7)
 
-Prior libraries for image classification, hyperparameter tuning, report creation, etc..]
+Prior libraries for image classification, hyperparameter tuning, report creation, etc..
+
+### Siamese Networks
 
 We get 74% zero shot 3 way accuracy on MNIST dataset using Siamese Networks.
+
+`python3 main-siamese-fewshot.py`
 
 ### formats
 

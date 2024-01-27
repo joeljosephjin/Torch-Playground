@@ -13,7 +13,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--batch-size', type=int, default=512)
-    parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleModel or AVModel,..")
+    # parser.add_argument('--model', type=str, default='SimpleModel', help="SimpleModel or AVModel,..")
     parser.add_argument('--dataset', type=str, default='cifar_10', help="cifar_10 or mnist,..")
     parser.add_argument('--learning-rate', type=float, default=0.005)
     parser.add_argument('--momentum', type=float, default=0.9)

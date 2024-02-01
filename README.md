@@ -22,7 +22,7 @@ Dataloader: should be of same specific format as loading inbuilt mnist or cifar
 
 3.Benefits of fine-tuning on pre-trained models
 
-4.Reproduce results of research papers and do ablation studies on them.
+4.Reproduce results of research papers and do ablation studies on them. :star:
 
 5.try on new research datasets
 

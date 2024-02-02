@@ -72,7 +72,7 @@ Prior libraries don’t do work on this simple level. Our library will especiall
 - get 93% accuracy on ResNet ()
 - add resume from chkpt using wandb (to do)
 - fix the mistakes of 1. not using cudnn.benchmark and 2. not using model.test before the testing loop. (done)
-- now getting accuracy of 94.7% (nice)
+- now getting accuracy of 94.7% (nice) - [WandB Run](https://wandb.ai/joeljosephjin/torch-cnn/runs/9nvzj94w)
 - investigate the issue of identical dataloaders giving different results:
     - is there really a difference?::: yes, 0.3% difference exists
     - make code to characterize (done)::: found a difference in total sum

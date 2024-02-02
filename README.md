@@ -4,11 +4,15 @@
 
 Prior libraries for image classification, hyperparameter tuning, report creation, etc..
 
-### Siamese Networks
+### Densenet
 
-We get 74% zero shot 3 way accuracy on MNIST dataset using Siamese Networks.
+`python main.py --epochs 300 --batch-size 64 --learning-rate 0.1 --model DenseNet3 --dataset cifar_10 --use-wandb`
 
-`python3 main-siamese-fewshot.py`
+Original Paper:
+Densenet(k-40) + CIFAR-10: 95%
+
+Ours:
+Densenet(k-40) + CIFAR-10: 94.4%
 
 ### formats
 
@@ -79,8 +83,7 @@ Prior libraries don’t do work on this simple level. Our library will especiall
     - trying worker=1, to achieve higher accuracy (done)::: failed; still gives the lower acuracy
     - try to find the difference again more intensively
     - try shuffle=true for testset (in progress)
-
-
+    - what accuracy does the other dataloader give? - [WandB Run](https://wandb.ai/joeljosephjin/torch-cnn/runs/cy07406n)
 
 
 

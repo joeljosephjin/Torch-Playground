@@ -60,8 +60,8 @@ class ClassifierPipeline():
         # load cifar-10
         self.classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
         # model = DenseNet3(40, 10, 12, 1.0, False, 0)
-        # self.trainloader, self.testloader = load_cifar_10_other()
-        self.trainloader, self.testloader = load_cifar_10()
+        self.trainloader, self.testloader = load_cifar_10_other()
+        # self.trainloader, self.testloader = load_cifar_10()
         
         if self.args.resume_from_saved:
             self.net = self.load_model(filename=self.args.model+self.args.resume_from_saved, modelname=self.args.model)

@@ -83,7 +83,7 @@ Prior libraries don’t do work on this simple level. Our library will especiall
     - trying worker=1, to achieve higher accuracy (done)::: failed; still gives the lower acuracy
     - try to find the difference again more intensively
     - try shuffle=true for testset (in progress)
-    - what accuracy does the other dataloader give? - [WandB Run](https://wandb.ai/joeljosephjin/torch-cnn/runs/cy07406n)
+    - what accuracy does the other dataloader give? - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/bgudxnzh) [WandB_Run2](https://wandb.ai/joeljosephjin/torch-cnn/runs/hey8gslx)
 
 
 

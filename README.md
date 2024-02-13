@@ -8,11 +8,13 @@ Prior libraries for image classification, hyperparameter tuning, report creation
 
 `python main.py --epochs 300 --batch-size 64 --learning-rate 0.1 --model DenseNet3 --dataset cifar_10 --use-wandb`
 
-Original Paper:
-Densenet(k-40) + CIFAR-10: 95%
+[Paper](https://arxiv.org/pdf/1608.06993.pdf)
 
-Ours:
-Densenet(k-40) + CIFAR-10: 94.4%
+<img src="experiments/densenet_results.png" width="600" height="300">
+
+| Method | Original | Ours |
+| ------ | -------- | ---- |
+| Densenet(k-40) + CIFAR-10 | 95% | 94.4% |
 
 ### formats
 

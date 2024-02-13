@@ -14,7 +14,7 @@ Prior libraries for image classification, hyperparameter tuning, report creation
 
 | Method (C10+)| Original | Ours |
 | ------ | -------- | ---- |
-| ResNet | 93.39% | ---- |
+| ResNet | [93.39%](## "100-6.61") | ---- |
 | Densenet-BC (k-40) | 96.54% | 94.4%<sup>[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r)</sup> |
 
 ### formats

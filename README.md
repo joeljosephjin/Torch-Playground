@@ -10,7 +10,7 @@ Prior libraries for image classification, hyperparameter tuning, report creation
 
 [Paper](https://arxiv.org/pdf/1608.06993.pdf)
 
-<img src="experiments/densenet_results.png" width="600" height="300">
+<img src="experiments/densenet_results.png" width="500" height="300">
 
 | Method | Original | Ours |
 | ------ | -------- | ---- |

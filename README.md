@@ -12,9 +12,10 @@ Prior libraries for image classification, hyperparameter tuning, report creation
 
 <img src="experiments/densenet_results.png" width="500" height="300">
 
-| Method | Original | Ours |
+| Method (C10+)| Original | Ours |
 | ------ | -------- | ---- |
-| Densenet(k-40) + CIFAR-10 | 95% | 94.4% |
+| ResNet | 93.39% | ---- |
+| Densenet-BC (k-40) | 96.54% | 94.4%[<sup>R1</sup>](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r) |
 
 ### formats
 

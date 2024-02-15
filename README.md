@@ -17,7 +17,7 @@ Prior libraries for image classification, hyperparameter tuning, report creation
 | ResNet | 6.61 | ---- |
 | DenseNet (k-12) (d-40) | 5.24 | 5.6<sup>[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r)</sup> |
 | DenseNet-BC (k-12) (d-100) | 4.51 | ---- |
-| DenseNet-BC (k-40) (d-190) | 3.46 | ----[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/dfmeizib) |
+| DenseNet-BC (k-40) (d-190) | 3.46 | ----<sup>[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/dfmeizib)</sup> |
 
 ### ResNet
 

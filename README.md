@@ -15,7 +15,9 @@ Prior libraries for image classification, hyperparameter tuning, report creation
 | Method (C10+)| Original | Ours |
 | ------ | -------- | ---- |
 | ResNet | 6.61 | ---- |
-| DenseNet-BC (k-40) | 3.46 | 5.6<sup>[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r)</sup> |
+| DenseNet (k-12) (d-40) | 5.24 | 5.6<sup>[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r)</sup> |
+| DenseNet-BC (k-12) (d-100) | 4.51 | ---- |
+| DenseNet-BC (k-40) (d-190) | 3.46 | ----[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/dfmeizib) |
 
 ### ResNet
 
@@ -95,7 +97,8 @@ Prior libraries don’t do work on this simple level. Our library will especiall
     - try to find the difference again more intensively
     - try shuffle=true for testset (in progress)
     - what accuracy does the other dataloader give? - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/bgudxnzh) [WandB_Run2](https://wandb.ai/joeljosephjin/torch-cnn/runs/hey8gslx)
-- run densenet3_k12 - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/vwk58r4j) (in progress)
+- run densenet3_k12 - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/vwk58r4j) (failed) this is depth=12
+    - run properly again - k40_d190 - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/dfmeizib)
 
 
 

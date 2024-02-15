@@ -119,10 +119,10 @@ class DenseNet3(nn.Module):
         return self.fc(out)
 
 
-class DenseNet3_k12(nn.Module):
-    def __init__(self, depth=12, num_classes=10, growth_rate=12,
+class DenseNet3_k40_d190(nn.Module):
+    def __init__(self, depth=190, num_classes=10, growth_rate=40,
                  reduction=1.0, bottleneck=False, dropRate=0.0):
-        super(DenseNet3_k12, self).__init__()
+        super(DenseNet3_k40_d190, self).__init__()
         in_planes = 2 * growth_rate
         n = (depth - 4) / 3
         if bottleneck == True:

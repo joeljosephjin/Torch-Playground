@@ -124,8 +124,8 @@ class ClassifierPipeline():
 
             if epoch % self.args.log_interval == 0:
                 self.test(epoch=epoch)
-            if epoch % self.args.save_interval == 0:
-                self.save_model(model=self.net, filename=self.args.model+self.args.save_as)
+            # if epoch % self.args.save_interval == 0:
+            #     self.save_model(model=self.net, filename=self.args.model+self.args.save_as)
             
         print('Finished Training')
 
@@ -180,12 +180,12 @@ class ClassifierPipeline():
             print(f'Accuracy for class: {classname:5s} is {accuracy:.1f} %')
             
     def save_model(self, model, filename):
-        path = f'save/{filename}.pth'
+        path = f'saved/{filename}.pth'
         torch.save(model.state_dict(), path)
         print(f'Model saved as {path} ...')
         
     def load_model(self, filename, modelname):
-        path = f'save/{filename}.pth'
+        path = f'saved/{filename}.pth'
         models_mod = importlib.import_module(f'models.models')
         model_class = getattr(models_mod, modelname)
         model = model_class()

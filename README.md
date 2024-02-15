@@ -4,7 +4,7 @@
 
 Prior libraries for image classification, hyperparameter tuning, report creation, etc..
 
-### Densenet
+### DenseNet
 
 `python main.py --epochs 300 --batch-size 64 --learning-rate 0.1 --model DenseNet3 --dataset cifar_10 --use-wandb`
 
@@ -14,8 +14,16 @@ Prior libraries for image classification, hyperparameter tuning, report creation
 
 | Method (C10+)| Original | Ours |
 | ------ | -------- | ---- |
-| ResNet | [93.39%](## "100-6.61") | ---- |
-| Densenet-BC (k-40) | [96.54%](## "100-3.46") | 94.4%<sup>[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r)</sup> |
+| ResNet | 6.61 | ---- |
+| DenseNet-BC (k-40) | 3.46 | 5.6<sup>[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r)</sup> |
+
+### ResNet
+
+[Paper](https://arxiv.org/pdf/1512.03385.pdf)
+
+<img src="experiments/resnet_results_c10.png" width="300" height="300">
+
+
 
 ### formats
 
@@ -87,6 +95,7 @@ Prior libraries don’t do work on this simple level. Our library will especiall
     - try to find the difference again more intensively
     - try shuffle=true for testset (in progress)
     - what accuracy does the other dataloader give? - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/bgudxnzh) [WandB_Run2](https://wandb.ai/joeljosephjin/torch-cnn/runs/hey8gslx)
+- run densenet3_k12 - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/vwk58r4j) (in progress)
 
 
 

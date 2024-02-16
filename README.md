@@ -48,6 +48,7 @@ Dataloader: should be of same specific format as loading inbuilt mnist or cifar
 Prior libraries don’t do work on this simple level. Our library will especially help beginners dive into computer vision model building, training and research.
 
 DenseNet Pytorch Implementation by andreasveit - [Github](https://github.com/andreasveit/densenet-pytorch)
+Densenet Lua by liuzhuang13 (author) - [Github](https://github.com/liuzhuang13/DenseNet)
 
 ### code structure
 
@@ -101,7 +102,8 @@ DenseNet Pytorch Implementation by andreasveit - [Github](https://github.com/and
     - what accuracy does the other dataloader give? - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/bgudxnzh) [WandB_Run2](https://wandb.ai/joeljosephjin/torch-cnn/runs/hey8gslx)
 - run densenet3_k12 - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/vwk58r4j) (failed) this is depth=12
     - run properly again - k40_d190 - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/dfmeizib) - failed - too much for gpu vram
-    - run on kaggle [notebook](https://www.kaggle.com/joeljosephjin/run-torch-playground/edit)
+    - run on kaggle [notebook](https://www.kaggle.com/joeljosephjin/run-torch-playground/edit) (failed) (not enuf vram)
+    - run k12_d100
 
 
 

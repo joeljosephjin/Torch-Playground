@@ -45,7 +45,9 @@ Dataloader: should be of same specific format as loading inbuilt mnist or cifar
 
 ### prior work
 
-Prior libraries don’t do work on this simple level. Our library will especially help beginners dive into computer vision model building, training and research
+Prior libraries don’t do work on this simple level. Our library will especially help beginners dive into computer vision model building, training and research.
+
+DenseNet Pytorch Implementation by andreasveit - [Github](https://github.com/andreasveit/densenet-pytorch)
 
 ### code structure
 

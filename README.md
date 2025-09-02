@@ -1,112 +1,233 @@
-# General Library for Experimenting Computer Vision
+# Torch-Playground: Computer Vision Experimentation Library
 
-[Colab Notebook](https://colab.research.google.com/drive/1w5uEuyaX11vndVqPy5miFg8FOT892Ju1#scrollTo=YP1RRHgp1JO7)
+![CI](https://github.com/joeljosephjin/Torch-Playground/workflows/CI/badge.svg)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Prior libraries for image classification, hyperparameter tuning, report creation, etc..
+A PyTorch-based computer vision experimentation library focused on image classification research and model comparison.
 
-### DenseNet
+## 🚀 Recent Improvements
 
-`python main.py --epochs 300 --batch-size 64 --learning-rate 0.1 --model DenseNet3 --dataset cifar_10 --use-wandb`
+This repository has been enhanced with modern development practices and infrastructure:
 
-[Paper](https://arxiv.org/pdf/1608.06993.pdf)
+### ✅ Development Tools Added
+- **Automated Code Formatting**: Black + isort for consistent code style
+- **Linting**: Flake8 for code quality checks
+- **Testing Framework**: Pytest with comprehensive test suite
+- **CI/CD Pipeline**: GitHub Actions for automated testing
+- **Pre-commit Hooks**: Automatic code quality checks
+- **Modern Configuration**: pyproject.toml for Python packaging
+
+### ✅ Code Quality Improvements
+- Fixed import issues and bugs in existing code
+- Added comprehensive test coverage for models, data loading, and utilities
+- Improved error handling and type safety
+- Better project structure and organization
+
+## 📊 Features
+
+### Supported Models
+- **DenseNet**: DenseNet-40, DenseNet-100 with various growth rates
+- **ResNet**: ResNet-18 implementation
+- **Custom CNNs**: SimpleModel, AVModel for CIFAR-10/MNIST
+- **Extensible**: Easy to add new architectures
+
+### Datasets
+- CIFAR-10 with data augmentation
+- MNIST for grayscale classification
+- Custom data loading utilities
+
+### Experiment Tracking
+- WandB integration for experiment logging
+- Model checkpointing and resume functionality
+- Reproducible experiments with seed setting
+
+## 🛠 Setup & Installation
+
+### Requirements
+- Python 3.8+
+- PyTorch 2.0+
+- CUDA support (optional but recommended)
+
+### Quick Start
+```bash
+# Clone the repository
+git clone https://github.com/joeljosephjin/Torch-Playground.git
+cd Torch-Playground
+
+# Install dependencies
+pip install -r requirements.txt
+
+# For development
+pip install -e .[dev]
+
+# Setup pre-commit hooks (optional)
+pre-commit install
+```
+
+## 🎯 Usage
+
+### Training Models
+```bash
+# Train DenseNet on CIFAR-10
+python main.py --epochs 300 --batch-size 64 --learning-rate 0.1 --model DenseNet3 --dataset cifar_10 --use-wandb
+
+# Quick test run
+make train-quick
+
+# Train with different models
+python main.py --model ResNet18 --dataset cifar_10 --epochs 50
+python main.py --model SimpleModel --dataset mnist --epochs 10
+```
+
+### Development Commands
+```bash
+# Run tests
+make test
+
+# Format code
+make format
+
+# Lint code
+make lint
+
+# Type checking
+make type-check
+
+# All quality checks
+make check-all
+```
+
+## 📈 Results
+
+### DenseNet Performance on CIFAR-10
+
+| Method (C10+) | Original Paper | Our Implementation |
+|---------------|----------------|-------------------|
+| ResNet        | 6.61%          | TBD               |
+| DenseNet (k-12, d-40) | 5.24% | 5.6% [[R1]](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r) |
+| DenseNet-BC (k-12, d-100) | 4.51% | TBD |
+| DenseNet-BC (k-40, d-190) | 3.46% | TBD |
 
 <img src="experiments/densenet_results.png" width="500" height="300">
 
-| Method (C10+)| Original | Ours |
-| ------ | -------- | ---- |
-| ResNet | 6.61 | ---- |
-| DenseNet (k-12) (d-40) | 5.24 | 5.6<sup>[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r)</sup> |
-| DenseNet-BC (k-12) (d-100) | 4.51 | ---- |
-| DenseNet-BC (k-40) (d-190) | 3.46 | ----<sup>[R1](https://wandb.ai/joeljosephjin/torch-cnn/runs/dfmeizib)</sup> |
-
-### ResNet
+### ResNet Results
 
 [Paper](https://arxiv.org/pdf/1512.03385.pdf)
 
 <img src="experiments/resnet_results_c10.png" width="300" height="300">
 
+## 🧪 Testing
 
+The project includes comprehensive tests covering:
 
-### formats
+- **Model Architecture Tests**: Forward pass, gradient flow, parameter counting
+- **Data Loading Tests**: CIFAR-10, MNIST, batch consistency
+- **Utility Tests**: Seed reproducibility, accuracy calculations
+- **Integration Tests**: End-to-end training pipeline
 
-Dataloader: should be of same specific format as loading inbuilt mnist or cifar
+```bash
+# Run all tests
+pytest
 
-### fundamental questions?
+# Run specific test categories
+pytest tests/test_models.py -v
+pytest tests/test_data.py -v
+pytest tests/test_utils.py -v
 
-1.Does hyperparameter tuning on small portion of the dataset generalize to the big dataset?
+# Run with coverage (if pytest-cov installed)
+pytest --cov=. --cov-report=html
+```
 
-2.What optimizers are useful for which datasets? Does one have more stability than other?
+## 📁 Project Structure
 
-3.Benefits of fine-tuning on pre-trained models
+```
+torch-playground/
+├── data/                  # Data loading utilities
+│   └── data.py
+├── models/                # Model architectures
+│   ├── models.py         # Basic models (SimpleModel, AVModel)
+│   ├── densenet.py       # DenseNet implementation
+│   ├── densenet3.py      # DenseNet variants
+│   ├── resnet.py         # ResNet implementation
+│   └── shufflenet.py     # ShuffleNet (WIP)
+├── tests/                 # Test suite
+│   ├── test_models.py
+│   ├── test_data.py
+│   └── test_utils.py
+├── experiments/           # Experiment results and scripts
+├── saved/                 # Model checkpoints
+├── main.py               # Main training script
+├── utils.py              # Utility functions
+├── requirements.txt      # Dependencies
+├── pyproject.toml        # Project configuration
+├── Makefile             # Development commands
+└── IMPROVEMENTS.md      # Detailed improvement suggestions
+```
 
-4.Reproduce results of research papers and do ablation studies on them. :star:
+## 🔧 Configuration
 
-5.try on new research datasets
+The project supports flexible configuration through command-line arguments:
 
-### prior work
+```bash
+python main.py \
+    --model DenseNet3 \
+    --dataset cifar_10 \
+    --epochs 100 \
+    --batch-size 64 \
+    --learning-rate 0.1 \
+    --momentum 0.9 \
+    --weight-decay 1e-4 \
+    --use-wandb \
+    --save-as my_experiment
+```
 
-Prior libraries don’t do work on this simple level. Our library will especially help beginners dive into computer vision model building, training and research.
+## 🎯 Research Goals
 
-DenseNet Pytorch Implementation by andreasveit - [Github](https://github.com/andreasveit/densenet-pytorch)
-Densenet Lua by liuzhuang13 (author) - [Github](https://github.com/liuzhuang13/DenseNet)
+### Current Focus
+1. **Reproduce Paper Results**: Achieve published accuracies for DenseNet/ResNet
+2. **Ablation Studies**: Understand what makes models effective
+3. **Hyperparameter Analysis**: Systematic tuning and analysis
+4. **Model Comparison**: Fair benchmarking across architectures
 
-### code structure
+### Research Questions
+1. Does hyperparameter tuning on small dataset portions generalize?
+2. Which optimizers work best for different datasets?
+3. What are the benefits of fine-tuning vs. training from scratch?
+4. How do different architectures compare with similar parameter counts?
 
-^baseline
-- main.py (train and test loop, hyperparameters, etc..)
-- 
+## 🔮 Future Enhancements
 
-^future:
-- train.py (will contain training loop function)
-- test.py (will contain testing loop function)
+See [IMPROVEMENTS.md](IMPROVEMENTS.md) for detailed roadmap including:
 
-### future work
+- **Advanced Training**: Mixed precision, early stopping, advanced optimizers
+- **Extended Datasets**: ImageNet subsets, CIFAR-100, custom datasets
+- **Analysis Tools**: Model visualization, performance profiling
+- **Research Features**: Automated hyperparameter tuning, ensemble methods
+- **Production**: Model serving, quantization, ONNX export
 
-- remove config.py (done)
-- add option to select model (done)
-- add mnist as a dataset option (done)
-- use config for selecting the model (done)
-- add more datasets? (later)
-- reproduce a research paper results (in progress)
-- code densenet from scratch from the paper and tensorflow implementations if needed (in progress)
-- add readymade densenet to pipeline (done)
-- investigate what makes densenet better and how i can find this phenomenon with less summative running time (to do)
-- can another regular model with comparable number of parameters give same effect? How much is the effect of their special system (to do)
-- remove usage pipeline.py file (done)
-- add save and load feature (done)
-- add resume from checkpoint (done)
-- fix the optimizer load bug (done)
-- add time as a log (done)
-- replicate another repo and its 93% accuracy (done)
-- start using wandb to record and compare model performances (done)
-- save models to wandb (to do)
-- add the use of random seeds (done)
-- try add siamese classification experiments also (done)
-- add test accuracy setup in siamese experiment (done)
-- add class selective dataloader for fewshot experiments (done)
-- add zero shot testing module for siamese-fewshot model (done)
-- fix bugs in zeroshot (done)
-- add few shot testing module for siamese-fewshot model (in progress-later)
-- record some basic experiments using wandb (done)
-- print the number of parameters (done)
-- get 93% accuracy on ResNet ()
-- add resume from chkpt using wandb (to do)
-- fix the mistakes of 1. not using cudnn.benchmark and 2. not using model.test before the testing loop. (done)
-- now getting accuracy of 94.7% (nice) - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/9nvzj94w) [WandB_Run2](https://wandb.ai/joeljosephjin/torch-cnn/runs/8rw76l3r)
-- investigate the issue of identical dataloaders giving different results:
-    - is there really a difference?::: yes, 0.3% difference exists
-    - make code to characterize (done)::: found a difference in total sum
-    - trying worker=1, to achieve higher accuracy (done)::: failed; still gives the lower acuracy
-    - try to find the difference again more intensively
-    - try shuffle=true for testset (in progress)
-    - what accuracy does the other dataloader give? - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/bgudxnzh) [WandB_Run2](https://wandb.ai/joeljosephjin/torch-cnn/runs/hey8gslx)
-- run densenet3_k12 - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/vwk58r4j) (failed) this is depth=12
-    - run properly again - k40_d190 - [WandB_Run1](https://wandb.ai/joeljosephjin/torch-cnn/runs/dfmeizib) - failed - too much for gpu vram
-    - run on kaggle [notebook](https://www.kaggle.com/joeljosephjin/run-torch-playground/edit) (failed) (not enuf vram)
-    - run k12_d100
+## 🤝 Contributing
 
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes with tests
+4. Run quality checks: `make check-all`
+5. Submit a pull request
 
+The project follows modern Python development practices with automated testing and code quality checks.
 
+## 📚 References
 
+- [DenseNet Paper](https://arxiv.org/pdf/1608.06993.pdf)
+- [ResNet Paper](https://arxiv.org/pdf/1512.03385.pdf)
+- [PyTorch Documentation](https://pytorch.org/docs/)
+- [WandB Documentation](https://docs.wandb.ai/)
 
+## 📄 License
 
+MIT License - feel free to use this code for research and educational purposes.
+
+---
+
+**Colab Notebook**: [Available here](https://colab.research.google.com/drive/1w5uEuyaX11vndVqPy5miFg8FOT892Ju1#scrollTo=YP1RRHgp1JO7)
+
+*This library is designed to help researchers and students dive into computer vision model building, training, and research with modern development practices.*

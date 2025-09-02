@@ -1,9 +1,9 @@
-from turtle import forward
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
+
 from models.densenet import DenseNet
-from models.densenet3 import DenseNet3, DenseNet3_k40_d190, DenseNet3_k12_d100
+from models.densenet3 import DenseNet3, DenseNet3_k12_d100, DenseNet3_k40_d190
 from models.dla_simple import SimpleDLA
 from models.resnet import ResNet18
 
@@ -13,7 +13,7 @@ class ShuffleNetModel(nn.Module):
         super().__init__()
 
     def forward(self, x):
-        return 
+        return
 
 
 class AVModel(nn.Module):
@@ -24,30 +24,28 @@ class AVModel(nn.Module):
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2), # output: 64 x 16 x 16
+            nn.MaxPool2d(2, 2),  # output: 64 x 16 x 16
             nn.BatchNorm2d(64),
-
             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2), # output: 128 x 8 x 8
+            nn.MaxPool2d(2, 2),  # output: 128 x 8 x 8
             nn.BatchNorm2d(128),
-
             nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2), # output: 256 x 4 x 4
+            nn.MaxPool2d(2, 2),  # output: 256 x 4 x 4
             nn.BatchNorm2d(256),
-
-            nn.Flatten(), 
-            nn.Linear(256*4*4, 1024),
+            nn.Flatten(),
+            nn.Linear(256 * 4 * 4, 1024),
             nn.ReLU(),
             nn.Linear(1024, 512),
             nn.ReLU(),
-            nn.Linear(512, 10))
-        
+            nn.Linear(512, 10),
+        )
+
     def forward(self, x):
         return self.network(x)
 
@@ -62,19 +60,19 @@ class SimpleModel(nn.Module):
             nn.Conv2d(6, 16, 5),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-
             nn.Flatten(),
             nn.Linear(16 * 5 * 5, 120),
             nn.ReLU(),
             nn.Linear(120, 84),
             nn.ReLU(),
-            nn.Linear(84, 10)
+            nn.Linear(84, 10),
         )
 
     def forward(self, x):
         x = self.network(x)
         return x
-    
+
+
 class SimpleMNIST(nn.Module):
     def __init__(self):
         super(SimpleMNIST, self).__init__()

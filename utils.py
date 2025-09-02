@@ -1,7 +1,8 @@
-import numpy as np
-import random
-import torch
 import os
+import random
+
+import numpy as np
+import torch
 
 
 def set_seed(seed: int = 42) -> None:
@@ -16,6 +17,7 @@ def set_seed(seed: int = 42) -> None:
     os.environ["PYTHONHASHSEED"] = str(seed)
     print(f"Random seed set as {seed}")
 
+
 def accuracy_densenet(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
     maxk = max(topk)
@@ -27,6 +29,6 @@ def accuracy_densenet(output, target, topk=(1,)):
 
     res = []
     for k in topk:
-        correct_k = correct[:k].view(-1).float().sum(0)
+        correct_k = correct[:k].reshape(-1).float().sum(0)
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
